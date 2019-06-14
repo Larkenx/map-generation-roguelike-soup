@@ -15,12 +15,14 @@ html {
       <v-spacer></v-spacer>
     </v-toolbar>
     <v-content>
-      <v-layout
-        justify-center
-        fill-height
-      >
-        <PixiRenderer />
-      </v-layout>
+      <v-container fill-height>
+        <v-layout
+          justify-center
+          align-content-center
+        >
+          <PixiRenderer />
+        </v-layout>
+      </v-container>
     </v-content>
   </v-app>
 </template>
@@ -30,7 +32,7 @@ import ROT from 'rot-js'
 import { mapState, mapMutations } from 'vuex'
 import PixiRenderer from '@/components/PixiRenderer'
 import { LOAD_MAP } from '@/store'
-import { key, unkey, getRandomInt, sumToTile, computeBitmaskWalls } from '@/assets/utils/utils'
+import { key, unkey, getRandomInt, sumToTile, computeBitmaskWalls } from '@/assets/utils/HelperFunctions'
 
 const width = 50
 const height = 50
