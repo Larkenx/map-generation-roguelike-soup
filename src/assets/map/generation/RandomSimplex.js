@@ -4,25 +4,7 @@
 import ROT from 'rot-js'
 import SimplexNoise from 'simplex-noise'
 import RNG from 'prng-parkmiller-js'
-import { Game } from '#/Game.js'
 import { GameMap } from '#/map/GameMap.js'
-import Player from '#/entities/actors/Player.js'
-import NPC from '#/entities/actors/NPC.js'
-// Items
-// Weapons
-import { createSword, Sword } from '#/entities/items/weapons/Sword.js'
-import { Bow, createBow } from '#/entities/items/weapons/ranged/Bow.js'
-import { SteelArrow } from '#/entities/items/weapons/ranged/ammo/Arrow.js'
-// Potions
-import HealthPotion from '#/entities/items/potions/HealthPotion.js'
-import StrengthPotion from '#/entities/items/potions/StrengthPotion.js'
-import ManaPotion from '#/entities/items/potions/ManaPotion.js'
-// Misc
-import Chest from '#/entities/misc/Chest.js'
-import Door from '#/entities/misc/Door.js'
-import LockedDoor from '#/entities/misc/LockedDoor.js'
-import Key from '#/entities/items/misc/Key.js'
-import Ladder from '#/entities/misc/Ladder.js'
 import { getRandomInt, getNormalRandomInt, randomProperty, between } from '#/utils/HelperFunctions.js'
 
 const textures = {
@@ -258,27 +240,6 @@ export function randomSimplexMap(width, height, zoom) {
 		RAT: 3,
 		WILD_GOAT: 3
 	}
-
-	// const createActor = (actorString, x, y, id) => {
-	// 	switch (actorString) {
-	// 		case 'ORC':
-	// 			return new Orc(x, y, id)
-	// 		case 'EMPOWERED_ORC':
-	// 			return new Orc(x, y, id, true)
-	// 		case 'KOBOLD':
-	// 			return new Kobold(x, y, id)
-	// 		case 'GOBLIN':
-	// 			return new Goblin(x, y, id)
-	// 		case 'BAT':
-	// 			return new Bat(x, y, id)
-	// 		case 'RAT':
-	// 			return new Rat(x, y, id)
-	// 		case 'WILD_GOAT':
-	// 			return new WildGoat(x, y, id)
-	// 		default:
-	// 			throw 'Unidentified actor given to create actor'
-	// 	}
-	// }
 
 	const noise1 = (nx, ny) => {
 		return gen1.noise2D(nx, ny) / 2 + 0.5

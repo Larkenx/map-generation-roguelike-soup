@@ -12,7 +12,9 @@
   "dependencies": {
     "express": "^4.16.4",
     "pixi.js": "^4.8.7",
+    "prng-parkmiller-js": "^0.1.1",
     "rot-js": "^0.6.5",
+    "simplex-noise": "^2.4.0",
     "vue": "^2.6.6",
     "vuetify": "^1.5.5",
     "vuex": "^3.1.0"

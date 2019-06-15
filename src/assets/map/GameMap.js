@@ -1,18 +1,11 @@
-import Tile, { getTileInfo } from '@/assets/map/Tile.js'
-import { getRandomInt } from '@/assets/utils/HelperFunctions.js'
+import Tile from '@/assets/map/Tile.js'
 
 export class GameMap {
 	constructor(width, height, name) {
 		this.name = name
-		this.loadedIDS = []
-		this.playerLocation = null // this field is used exclusively for saving the player's last location before they change levels
 		this.width = width
 		this.height = height
 		this.data = new Array(this.height) // stores all tiles in the game
-		this.visible_tiles = {}
-		this.seen_tiles = {}
-		this.visited = false
-		this.dungeon = null
 		// Intialize all of the tiles...
 		for (let i = 0; i < this.height; i++) {
 			this.data[i] = new Array(this.width)
