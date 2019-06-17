@@ -146,6 +146,7 @@ export default {
 					this.textureMap[name][character] = texture
 				}
 			}
+			console.log(this.textureMap)
 		},
 		renderMap() {
 			if (this.selectedTileset && this.map) {
@@ -161,18 +162,21 @@ export default {
 				// Grab the width/height and name of the current tileset tiles
 				const { spriteWidth, spriteHeight, name } = this.selectedTileset
 				// Calculate scale (by width) of tiles so that it fills the screen properly
-				let scaleX = WIDTH / (this.map[0].length * spriteWidth)
-				let scaleY = HEIGHT / (this.map.length * spriteHeight)
+				let scaleX = WIDTH / (this.map.width * spriteWidth)
+				let scaleY = HEIGHT / (this.map.height * spriteHeight)
 				let scale = scaleX <= scaleY ? scaleX : scaleY
 				let background = new PIXI.Container()
-				for (let y = 0; y < this.map.length; y++) {
-					for (let x = 0; x < this.map[0].length; x++) {
-						const { character, fg, bg } = this.map[y][x]
-						const texture = this.textureMap[name][character]
-						let sprite = new PIXI.Sprite(texture)
-						sprite.tint = fg
-						sprite.position.set(x * spriteWidth, y * spriteHeight)
-						background.addChild(sprite)
+				for (let y = 0; y < this.map.height; y++) {
+					for (let x = 0; x < this.map.width; x++) {
+						let { actors, obstacles } = this.map.tileAt(x, y)
+						for (let entity of obstacles.concat(actors)) {
+							const { character, fg, bg } = entity.glyph
+							const texture = this.textureMap[name][character]
+							let sprite = new PIXI.Sprite(texture)
+							sprite.tint = fg
+							sprite.position.set(x * spriteWidth, y * spriteHeight)
+							background.addChild(sprite)
+						}
 					}
 				}
 
@@ -184,7 +188,7 @@ export default {
 				// 	sprite.position.set(x * spriteWidth, 0)
 				// 	title.addChild(sprite)
 				// }
-				background.position.set(0, spriteHeight)
+				background.position.set(0, 0)
 				background.scale.x = background.scale.y = scale
 				// stage.addChild(title)
 				stage.addChild(background)

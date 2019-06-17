@@ -4,212 +4,51 @@
 import ROT from 'rot-js'
 import SimplexNoise from 'simplex-noise'
 import RNG from 'prng-parkmiller-js'
-import { GameMap } from '#/map/GameMap.js'
-import { getRandomInt, getNormalRandomInt, randomProperty, between } from '#/utils/HelperFunctions.js'
+import { GameMap } from '@/assets/map/GameMap.js'
+import { getRandomInt, getNormalRandomInt, randomProperty, between, flatten } from '@/assets/utils/HelperFunctions.js'
+import { obstacleTypes, obstacleFactory } from '@/assets/entity/obstacles'
 
-const textures = {
-	OLD_BEACH: {
-		type: 'OLD_BEACH',
-		textures: {
-			upperLeft: 8816,
-			top: 8817,
-			upperRight: 8818,
-
-			left: 8936,
-			center: 8937,
-			right: 8938,
-
-			lowerLeft: 9056,
-			bottom: 9057,
-			lowerRight: 9058,
-
-			endLeft: 8940,
-			middleCorridorHorizontal: 8941,
-			endRight: 8942,
-
-			endTop: 8819,
-			middleCorridorVertical: 8939,
-			endBottom: 9059,
-
-			single: 8937
-		}
-	},
-	BEACH: {
-		type: 'BEACH',
-		textures: {
-			upperLeft: 8816 + 14,
-			top: 8817 + 14,
-			upperRight: 8818 + 14,
-
-			left: 8936 + 14,
-			center: 8937 + 14,
-			right: 8938 + 14,
-
-			lowerLeft: 9056 + 14,
-			bottom: 9057 + 14,
-			lowerRight: 9058 + 14,
-
-			endLeft: 8940 + 14,
-			middleCorridorHorizontal: 8941 + 14,
-			endRight: 8942 + 14,
-
-			endTop: 8819 + 14,
-			middleCorridorVertical: 8939 + 14,
-			endBottom: 9059 + 14,
-
-			single: 8937 + 14
-		}
-	},
-	OCEAN_WATER: {
-		type: 'OCEAN_WATER',
-		textures: {
-			upperLeft: 9017,
-			top: 9017,
-			upperRight: 9017,
-
-			left: 9017,
-			center: 9017,
-			right: 9017,
-
-			lowerLeft: 9017,
-			bottom: 9017,
-			lowerRight: 9017,
-
-			endLeft: 9017,
-			middleCorridorHorizontal: 9017,
-			endRight: 9017,
-
-			endTop: 9017,
-			middleCorridorVertical: 9017,
-			endBottom: 9017,
-
-			single: 9017
-		}
-	},
-	COASTAL_WATER: {
-		type: 'COASTAL_WATER',
-		textures: {
-			upperLeft: 8176,
-			top: 8177,
-			upperRight: 8178,
-
-			left: 8296,
-			center: 8297,
-			right: 8298,
-
-			lowerLeft: 8296,
-			bottom: 8297,
-			lowerRight: 8298,
-
-			endLeft: 8296,
-			middleCorridorHorizontal: 8177,
-			endRight: 8178,
-
-			altUpperRight: 8181,
-			endTop: 8177,
-			middleCorridorVertical: 8298,
-			endBottom: 8296,
-
-			single: 8178
-		}
-	},
-	FOREST: {
-		type: 'FOREST',
-		textures: {
-			hasCorridors: true,
-			upperLeft: 7743,
-			top: 7744,
-			upperRight: 7745,
-
-			left: 7863,
-			center: 7864,
-			right: 7865,
-
-			lowerLeft: 7983,
-			bottom: 7984,
-			lowerRight: 7985,
-
-			endLeft: 7867,
-			middleCorridorHorizontal: 7868,
-			endRight: 7869,
-
-			endTop: 7746,
-			middleCorridorVertical: 7866,
-			endBottom: 7986,
-
-			single: 7748
-		}
-	},
-	MOUNTAIN: {
-		type: 'MOUNTAIN',
-		textures: {
-			upperLeft: 9197,
-			top: 9198,
-			upperRight: 9199,
-
-			left: 9317,
-			// center: 9318,
-			right: 9317,
-
-			lowerLeft: 9437,
-			bottom: 9198,
-			lowerRight: 9439,
-
-			endLeft: 9198,
-			middleCorridorHorizontal: 9198,
-			endRight: 9198,
-
-			endTop: 9198,
-			middleCorridorVertical: 9200,
-			endBottom: 9198,
-
-			middleT: 9201,
-			middleIntersection: 9321
-			// single: 7748
-		}
-	},
-	SNOW: {
-		type: 'SNOW',
-		textures: {}
-	}
+const biomeTypes = {
+	OCEAN: 'OCEAN',
+	COASTAL: 'COASTAL',
+	GRASSLAND: 'GRASSLAND',
+	FOREST: 'FOREST',
+	LOW_MOUNTAIN: 'LOW_MOUNTAIN',
+	HIGH_MOUNTAIN: 'HIGH_MOUNTAIN',
+	SWAMP: 'SWAMP'
 }
 
-const actorTextures = {
-	ORC: [5292, 5293, 5294, 5295, 5296, 5297, 5299],
-	EMPOWERED_ORC: [5298],
-	GOBLIN: [7440, 7441, 7442, 7443, 7444, 7445, 7446],
-	RAT: [2362, 2363, 2365, 2366],
-	BAT: [3704, 3706],
-	KOBOLD: [5532, 5533, 5534, 5535, 5536, 5537, 5538, 5539],
-	WILD_GOAT: [2600, 2601, 2602, 2603, 2604, 2605]
-}
-
-// textures for grass/flowers/trees
-const wildGrass1 = 1242,
-	wildGrass2 = 1243,
-	wildGrass3 = 1362,
-	wildGrass4 = 1363,
-	shrub1 = 1722,
-	shrub2 = 1723,
-	shrub3 = 1726,
-	mushroom1 = 1724,
-	mushroom2 = 1725,
-	tree = 7355,
-	flower1 = 1482,
-	flower2 = 1483,
-	flower3 = 1484,
-	flower4 = 1485
-
-const flatten = arr => arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flatten(val) : val), [])
-
-// function that will yield a random free space in the room
-const randomTile = validTiles => {
-	let index = getRandomInt(0, validTiles.length) // index of a tile
-	let tile = validTiles.splice(index, 1)
-	if (tile.length === 1) {
-		return tile[0].split(',').map(e => Number(e))
-	} else {
-		return null
+const biomes = {
+	[biomeTypes.OCEAN]: {
+		[obstacleTypes.DEEP_WATER]: 1
+	},
+	[biomeTypes.COASTAL]: {
+		[obstacleTypes.SHALLOW_WATER]: 1
+	},
+	[biomeTypes.SWAMP]: {
+		[obstacleTypes.TALL_GRASS]: 50,
+		[obstacleTypes.DIRT]: 10
+	},
+	[biomeTypes.GRASSLAND]: {
+		[obstacleTypes.GRASS]: 50,
+		[obstacleTypes.FOREST_TREE]: 5,
+		[obstacleTypes.SHRUB]: 5,
+		[obstacleTypes.FLOWER]: 5,
+		[obstacleTypes.BUSH]: 5
+	},
+	[biomeTypes.FOREST]: {
+		[obstacleTypes.GRASS]: 10,
+		[obstacleTypes.FOREST_TREE]: 50,
+		[obstacleTypes.SHRUB]: 10
+	},
+	[biomeTypes.HILL]: {
+		[obstacleTypes.HILL]: 10
+	},
+	[biomeTypes.LOW_MOUNTAIN]: {
+		[obstacleTypes.LOW_MOUNTAIN]: 1
+	},
+	[biomeTypes.HIGH_MOUNTAIN]: {
+		[obstacleTypes.HIGH_MOUNTAIN]: 1
 	}
 }
 
@@ -219,33 +58,19 @@ export function randomSimplexMap(width, height, zoom) {
 	let h = ~~(height / zoom)
 	let gameMap = new GameMap(w, h)
 	console.log(w, h)
-	// base textures
-	/* GOOD SEEDS
-        - 908234
-    */
 	let seed1 = 908234
-	let seed2 = 908234
+	let seed2 = 798465
 	let rng1 = RNG.create(seed1)
 	let rng2 = RNG.create(seed2)
 	let gen1 = new SimplexNoise(rng1.nextDouble.bind(rng1))
 	let gen2 = new SimplexNoise(rng2.nextDouble.bind(rng2))
 	let frequency = 1.5
 
-	const mobDistribution = {
-		// ORC: 1,
-		// EMPOWERED_ORC: 1,
-		// KOBOLD: 1,
-		GOBLIN: 1,
-		// BAT: 1,
-		RAT: 3,
-		WILD_GOAT: 3
-	}
-
-	const noise1 = (nx, ny) => {
+	const elevationNoise = (nx, ny) => {
 		return gen1.noise2D(nx, ny) / 2 + 0.5
 	}
 
-	const noise2 = (nx, ny) => {
+	const moistureNoise = (nx, ny) => {
 		return gen2.noise2D(nx, ny) / 2 + 0.5
 	}
 
@@ -253,12 +78,12 @@ export function randomSimplexMap(width, height, zoom) {
 		let nx = x / width - 0.5,
 			ny = y / height - 0.5
 		let e =
-			1.0 * noise1(frequency * 1 * nx, frequency * 1 * ny) +
-			0.5 * noise1(frequency * 2 * nx, frequency * 2 * ny) +
-			0.25 * noise1(frequency * 4 * nx, frequency * 4 * ny) +
-			0.13 * noise1(frequency * 8 * nx, frequency * 8 * ny) +
-			0.06 * noise1(frequency * 16 * nx, frequency * 16 * ny) +
-			0.03 * noise1(frequency * 32 * nx, frequency * 32 * ny)
+			1.0 * elevationNoise(frequency * 1 * nx, frequency * 1 * ny) +
+			0.5 * elevationNoise(frequency * 2 * nx, frequency * 2 * ny) +
+			0.25 * elevationNoise(frequency * 4 * nx, frequency * 4 * ny) +
+			0.13 * elevationNoise(frequency * 8 * nx, frequency * 8 * ny) +
+			0.06 * elevationNoise(frequency * 16 * nx, frequency * 16 * ny) +
+			0.03 * elevationNoise(frequency * 32 * nx, frequency * 32 * ny)
 		e /= 1.0 + 0.5 + 0.25 + 0.13 + 0.06 + 0.03
 		e = Math.pow(e, 5.0)
 		return e * 100
@@ -268,139 +93,44 @@ export function randomSimplexMap(width, height, zoom) {
 		let nx = x / width - 0.5,
 			ny = y / height - 0.5
 		let m =
-			1.0 * noise2(1 * nx, 1 * ny) +
-			0.75 * noise2(2 * nx, 2 * ny) +
-			0.33 * noise2(4 * nx, 4 * ny) +
-			0.33 * noise2(8 * nx, 8 * ny) +
-			0.33 * noise2(16 * nx, 16 * ny) +
-			0.5 * noise2(32 * nx, 32 * ny)
+			1.0 * moistureNoise(1 * nx, 1 * ny) +
+			0.75 * moistureNoise(2 * nx, 2 * ny) +
+			0.33 * moistureNoise(4 * nx, 4 * ny) +
+			0.33 * moistureNoise(8 * nx, 8 * ny) +
+			0.33 * moistureNoise(16 * nx, 16 * ny) +
+			0.5 * moistureNoise(32 * nx, 32 * ny)
 		m /= 1.0 + 0.75 + 0.33 + 0.33 + 0.33 + 0.5
 		return m
 	}
 
-	const biome = e => {
-		if (e < 1.5) {
-			return textures.COASTAL_WATER
-		} else {
-			return textures.FOREST
+	const getBiome = e => {
+		if (e <= 0.3) {
+			return biomeTypes.OCEAN
+		} else if (e <= 0.5) {
+			return biomeTypes.COASTAL
+		} else if (e <= 0.7) {
+			return biomeTypes.SWAMP
+		} else if (e <= 3) {
+			return biomeTypes.GRASSLAND
+		} else if (e <= 6) {
+			return biomeTypes.FOREST
+		} else if (e <= 8) {
+			return biomeTypes.HILL
+		} else if (e <= 12) {
+			return biomeTypes.LOW_MOUNTAIN
+		} else if (e > 15) {
+			return biomeTypes.HIGH_MOUNTAIN
 		}
-	}
-
-	let getTexture = (textures, sum) => {
-		const { hasCorridors } = textures
-		let sumToTexture = {
-			0: textures.single,
-			1: textures.endBottom,
-			2: hasCorridors ? textures.endLeft : textures.upperLeft,
-			3: textures.lowerLeft,
-			4: hasCorridors ? textures.endTop : textures.upperLeft,
-			5: textures.middleCorridorVertical,
-			6: textures.upperLeft,
-			7: textures.left,
-			8: hasCorridors ? textures.endRight : textures.upperRight,
-			9: textures.lowerRight,
-			10: textures.middleCorridorHorizontal,
-			11: textures.bottom,
-			12: textures.upperRight,
-			13: textures.right,
-			14: textures.top,
-			15: textures.center,
-			16: textures.lowerRight,
-			17: textures.lowerLeft,
-			18: textures.altUpperRight,
-			19: textures.upperLeft,
-			20: textures.middleT,
-			21: textures.middleIntersection
-		}
-
-		if (sum in sumToTexture) {
-			return sumToTexture[sum]
-		} else {
-			console.warn(`Couldn't find a texture for sum: ${sum} with tile options: ${tileOptions}`)
-			return 0
-		}
-	}
-
-	let computeBitmask = (x, y) => {
-		let elevation = getElevation(x, y)
-		let texture = biome(elevation)
-		let sum = 0
-		let above = `${x},${y - 1}`
-		let below = `${x},${y + 1}`
-		let left = `${x - 1},${y}`
-		let right = `${x + 1},${y}`
-
-		let ur = `${x + 1},${y - 1}`
-		let ll = `${x - 1},${y + 1}`
-
-		let ul = `${x - 1},${y - 1}`
-		let lr = `${x + 1},${y + 1}`
-
-		let free = coord => {
-			let [x, y] = coord.split(',')
-			let e = getElevation(x, y)
-			let textureType = biome(e).type
-			return textureType === texture.type || (textureType === 'OCEAN_WATER' && texture.type === 'COASTAL_WATER')
-		}
-
-		if (free(above)) sum += 1
-		if (free(right)) sum += 2
-		if (free(below)) sum += 4
-		if (free(left)) sum += 8
-
-		if (sum === 15 && !free(ul) && texture.type === 'COASTAL_WATER') {
-			sum = 18
-		}
-
-		return { texture: getTexture(texture.textures, sum), type: texture.type, elevation }
-	}
-
-	let possible_player_location = null
-
-	const floraFaunaProbability = {
-		[wildGrass1]: 25,
-		[wildGrass2]: 25,
-		[wildGrass3]: 25,
-		[wildGrass4]: 25,
-		[shrub1]: 1,
-		[shrub3]: 1,
-		[flower1]: 1,
-		[flower2]: 1,
-		[flower3]: 1,
-		[flower4]: 1,
-		[mushroom1]: 1
 	}
 
 	for (let y = 0; y < h; y++) {
 		for (let x = 0; x < w; x++) {
-			let t = computeBitmask(x, y)
-			let tile = gameMap.getTile(x, y)
-			if (t.type === textures.OCEAN_WATER.type || t.type === textures.COASTAL_WATER.type) {
-				// since it's an animated tile, it needs a static texture underneath it
-				tile.updateTileInfo(7146)
-				tile.updateTileInfo(t.texture)
-			} else if (t.type === textures.FOREST.type) {
-				tile.updateTileInfo(t.texture)
-				if (between(5, t.elevation, 6) || between(10, t.elevation, 100)) {
-					tile.updateTileInfo(tree)
-				} else {
-					if (getRandomInt(0, 4) > 0) {
-						let obstacle = ROT.RNG.getWeightedValue(floraFaunaProbability)
-						tile.updateTileInfo(obstacle)
-					}
-				}
-				// chance of placing an enemy in the open tiles...
-				if (!tile.blocked()) {
-					if (getRandomInt(0, 500) === 1) {
-						// 1% chance
-						let chosenActor = ROT.RNG.getWeightedValue(mobDistribution)
-						let possibleActorTextures = actorTextures[chosenActor]
-						let randomTexture = possibleActorTextures[getRandomInt(0, possibleActorTextures.length - 1)]
-						// let actor = createActor(chosenActor, x, y, randomTexture)
-						// tile.actors.push(actor)
-					}
-				}
-			}
+			// Find what the elevation & prescribed biome is for this tile
+			let biome = getBiome(getElevation(x, y))
+			// Get a new type of appropriate flora/fauna for this biome
+			let obstacleType = ROT.RNG.getWeightedValue(biomes[biome])
+			let newObstacle = obstacleFactory(obstacleType, { x, y })
+			gameMap.tileAt(x, y).obstacles.push(newObstacle)
 		}
 	}
 

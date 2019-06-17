@@ -51,6 +51,8 @@ export function within(a, n, b) {
 	return a <= b + n || a >= b - n
 }
 
+export const flatten = arr => arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flatten(val) : val), [])
+
 export function addPrefix(word) {
 	const vowels = ['a', 'e', 'i', 'o', 'u']
 	if (word !== 'you') {
@@ -198,12 +200,6 @@ export const key = (x, y) => {
 }
 export const unkey = k => {
 	return k.split(',').map(s => parseInt(s))
-}
-
-export function getRandomInt(min, max) {
-	min = Math.ceil(min)
-	max = Math.floor(max)
-	return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
 export function computeBitmaskWalls(x, y, blockedCells) {

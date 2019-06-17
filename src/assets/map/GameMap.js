@@ -29,6 +29,14 @@ export class GameMap {
 		return this.data[y][x]
 	}
 
+	tileAt(x, y) {
+		return this.getTile(x, y)
+	}
+
+	at(x, y) {
+		this.getTile(x, y)
+	}
+
 	getTiles() {
 		return this.data.reduce((prev, column) => prev.concat(column))
 	}
