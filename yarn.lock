@@ -4262,6 +4262,11 @@ lcid@^2.0.0:
   dependencies:
     invert-kv "^2.0.0"
 
+lindenmayer@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/lindenmayer/-/lindenmayer-1.5.0.tgz#ffa073aa31a46bc90b610082a590aa9e84a5d1b4"
+  integrity sha512-lCPTHk9v5FzlwZb8GX1wWWuVXJd7PzFVE8atUKb5TyX30RkImsa7Mg1F/SMuE6zxaB9HJUh5MXiZJdOKfg0S0Q==
+
 loader-runner@^2.3.0, loader-runner@^2.3.1:
   version "2.4.0"
   resolved "https://registry.npmjs.org/loader-runner/-/loader-runner-2.4.0.tgz#ed47066bfe534d7e84c4c7b9998c2a75607d9357"

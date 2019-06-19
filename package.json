@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "express": "^4.16.4",
+    "lindenmayer": "^1.5.0",
     "pixi.js": "^4.8.7",
     "prng-parkmiller-js": "^0.1.1",
     "rot-js": "^0.6.5",
