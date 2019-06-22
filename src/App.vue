@@ -28,31 +28,16 @@ html {
 </template>
 
 <script>
-import ROT from 'rot-js'
-import { mapState, mapMutations } from 'vuex'
+// import { mapState, mapMutations } from 'vuex'
 import PixiRenderer from '@/components/PixiRenderer'
-import { LOAD_MAP } from '@/store'
-import { randomSimplexMap } from '@/assets/map/generation/RandomSimplex'
-
-const width = 50
-const height = 50
 
 export default {
 	name: 'App',
 	components: {
 		PixiRenderer
 	},
-	computed: mapState(['map']),
-	methods: {
-		...mapMutations({
-			loadMap: LOAD_MAP
-		}),
-		generateMap() {
-			this.loadMap(randomSimplexMap(width, height, 0.5))
-		}
-	},
-	created() {
-		this.generateMap()
-	}
+	// computed: mapState(['map']),
+	methods: {},
+	created() {}
 }
 </script>

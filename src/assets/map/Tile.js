@@ -4,6 +4,7 @@ export default class Tile {
 		this.y = y
 		this.actors = []
 		this.obstacles = []
+		this.metadata = {}
 	}
 
 	blockedByAnyObstacle() {

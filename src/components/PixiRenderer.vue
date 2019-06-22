@@ -15,7 +15,8 @@ canvas {
 import * as PIXI from 'pixi.js'
 import { mapState } from 'vuex'
 import { computeBitmaskWalls, sumToTile, key, unkey } from '@/assets/utils/HelperFunctions'
-
+import { VoronoiMapGenerator, VoronoiMapVisualizer } from '@/assets/map/generation/VoronoiMapGenerator'
+import { getElevation } from '@/assets/map/generation/RandomSimplex.js'
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
 
 const WIDTH = 800
@@ -27,6 +28,11 @@ const renderer = new PIXI.autoDetectRenderer(WIDTH, HEIGHT, {
 })
 
 let stage = new PIXI.Container()
+
+let voronoiVisualizer = new VoronoiMapVisualizer(WIDTH, HEIGHT, renderer, stage)
+let generator = new VoronoiMapGenerator()
+let voronoi = generator.generate(WIDTH, HEIGHT, 1, 10, false, 91231, '')
+let data = generator.export(voronoi, getElevation)
 
 // TODO: instantiate Pixi.js app/container outside of vue data context because we don't want reactive setters/getters on pixijs components themselves; pixi internal canvas
 // rendering does not require us to track those changes (and furthermore would cause huge performance problems)
@@ -192,7 +198,8 @@ export default {
 				background.scale.x = background.scale.y = scale
 				// stage.addChild(title)
 				stage.addChild(background)
-				renderer.render(stage)
+				// renderer.render(stage)
+				voronoiVisualizer.render(data)
 			}
 		}
 	}

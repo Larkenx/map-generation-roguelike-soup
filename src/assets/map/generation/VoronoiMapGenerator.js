@@ -55,15 +55,10 @@ export class VoronoiMapGenerator {
 		this.zoom = zoom
 		this.distanceBetweenCells = distanceBetweenCells
 		this.islands = islands
-		this.gen1 = new SimplexNoise(seed.toString())
-		this.gen2 = new SimplexNoise(seed.toString())
+		// this.gen1 = new SimplexNoise(seed.toString())
+		// this.gen2 = new SimplexNoise(seed.toString())
 		this.distanceFunction = distanceFunction.toLowerCase()
-		const randomPoints = new Poisson(
-			[this.width, this.height],
-			this.distanceBetweenCells,
-			this.distanceBetweenCells,
-			10
-		).fill()
+		const randomPoints = new Poisson([this.width, this.height], this.distanceBetweenCells, this.distanceBetweenCells, 10).fill()
 		let voronoi = null
 		try {
 			voronoi = Delaunay.from(randomPoints).voronoi([0, 0, this.width, this.height])
@@ -76,21 +71,19 @@ export class VoronoiMapGenerator {
 	}
 
 	/* Returns data object of cells & half edges / circumcenters from d3-voronoi object */
-	export(voronoi) {
+	export(voronoi, elevationFn) {
 		const { delaunay, circumcenters } = voronoi
 		const { triangles, points, halfedges } = delaunay
 		const cells = []
 		for (let i = 0; i <= triangles.length; i++) {
 			const triangle = triangles[i]
 			const center = { x: points[triangle * 2], y: points[triangle * 2 + 1] }
-			const elevation = this.getElevation(center.x, center.y)
-			const moisture = this.getMoisture(center.x, center.y)
-			const biome = this.getBiome(elevation, moisture)
-			const color = this.getBiomeColor(biome)
-			const polygonVertices = voronoi
-				.cellPolygon(delaunay.find(center.x, center.y))
-				.map(p => ({ x: p[0], y: p[1] }))
-			cells.push({ center, elevation, moisture, biome, color, polygonVertices })
+			const elevation = elevationFn(center.x, center.y, this.width, this.height)
+			// const moisture = this.getMoisture(center.x, center.y)
+			// const biome = this.getBiome(elevation, moisture)
+			// const color = this.getBiomeColor(biome)
+			const polygonVertices = voronoi.cellPolygon(delaunay.find(center.x, center.y)).map(p => ({ x: p[0], y: p[1] }))
+			cells.push({ center, elevation, polygonVertices })
 		}
 		return { cells, halfedges, circumcenters }
 	}
@@ -164,58 +157,39 @@ export class VoronoiMapGenerator {
 }
 
 export class VoronoiMapVisualizer {
-	constructor(width, height) {
+	constructor(width, height, renderer, stage) {
 		this.width = width
 		this.height = height
-		this.renderer = PIXI.autoDetectRenderer({
-			width,
-			height,
-			antialias: true,
-			backgroundColor: 0x474747
-		})
-		console.log(this.renderer)
-		this.stage = new PIXI.Container()
-	}
-
-	destroy() {
-		this.renderer.destroy()
-	}
-
-	mountCanvas() {
-		document.getElementById('pixi_canvas').innerHTML = ''
-		document.getElementById('pixi_canvas').appendChild(this.renderer.view)
-	}
-
-	clearStage(stage) {
-		for (let i = stage.children.length - 1; i >= 0; i--) {
-			stage.removeChild(stage.children[i])
-		}
+		this.renderer = renderer
+		this.stage = stage
 	}
 
 	render(data, options) {
-		this.clearStage(this.stage)
 		const { circumcenters, halfedges, cells } = data
 		let g = new PIXI.Graphics()
-		for (const { center, elevation, moisture, biome, color, polygonVertices } of data.cells) {
-			g.beginFill(color)
-				.drawPolygon(polygonVertices.map(p => new PIXI.Point(p.x, p.y)))
-				.endFill()
+		for (const { center, elevation, polygonVertices } of data.cells) {
+			if (elevation >= 2 && elevation <= 5) {
+				g.beginFill('0xff0000')
+					.drawCircle(center.x, center.y, 2)
+					.endFill()
+			}
+			// g.beginFill(color)
+			// 	.drawPolygon(polygonVertices.map(p => new PIXI.Point(p.x, p.y)))
+			// 	.endFill()
 		}
 
-		if (options.showEdges) {
-			for (let i = 0, n = halfedges.length; i < n; ++i) {
-				const j = halfedges[i]
-				if (j < i) continue
-				const ti = ~~(i / 3) * 2
-				const tj = ~~(j / 3) * 2
-				const xi = circumcenters[ti]
-				const yi = circumcenters[ti + 1]
-				const xj = circumcenters[tj]
-				const yj = circumcenters[tj + 1]
-				g.lineStyle(1, 0x93939381)
-					.moveTo(xi, yi)
-					.lineTo(xj, yj)
-			}
+		for (let i = 0, n = halfedges.length; i < n; ++i) {
+			const j = halfedges[i]
+			if (j < i) continue
+			const ti = ~~(i / 3) * 2
+			const tj = ~~(j / 3) * 2
+			const xi = circumcenters[ti]
+			const yi = circumcenters[ti + 1]
+			const xj = circumcenters[tj]
+			const yj = circumcenters[tj + 1]
+			g.lineStyle(1, 0x93939381)
+				.moveTo(xi, yi)
+				.lineTo(xj, yj)
 		}
 
 		this.stage.addChild(g)
