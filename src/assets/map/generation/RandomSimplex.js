@@ -79,49 +79,46 @@ export function getElevation(x, y, width, height) {
 	return e * 100
 }
 
-export function randomSimplexMap(width, height, zoom) {
+export const getBiome = e => {
+	if (e <= 0.3) {
+		return biomeTypes.OCEAN
+	} else if (e <= 0.5) {
+		return biomeTypes.COASTAL
+	} else if (e <= 0.7) {
+		return biomeTypes.SWAMP
+	} else if (e <= 3) {
+		return biomeTypes.GRASSLAND
+	} else if (e <= 6) {
+		return biomeTypes.FOREST
+	} else if (e <= 8) {
+		return biomeTypes.HILL
+	} else if (e <= 12) {
+		return biomeTypes.LOW_MOUNTAIN
+	} else if (e > 15) {
+		return biomeTypes.HIGH_MOUNTAIN
+	}
+}
+
+export const getMoisture = (x, y) => {
+	let nx = x / width - 0.5,
+		ny = y / height - 0.5
+	let m =
+		1.0 * moistureNoise(1 * nx, 1 * ny) +
+		0.75 * moistureNoise(2 * nx, 2 * ny) +
+		0.33 * moistureNoise(4 * nx, 4 * ny) +
+		0.33 * moistureNoise(8 * nx, 8 * ny) +
+		0.33 * moistureNoise(16 * nx, 16 * ny) +
+		0.5 * moistureNoise(32 * nx, 32 * ny)
+	m /= 1.0 + 0.75 + 0.33 + 0.33 + 0.33 + 0.5
+	return m
+}
+
+export function randomSimplexMap(width, height) {
 	// we want to zoom in a lot so that the land is larger, so the width & height will be half
-	let w = ~~(width / zoom)
-	let h = ~~(height / zoom)
-	let gameMap = new GameMap(w, h)
-	console.log(w, h)
+	let gameMap = new GameMap(width, height)
 
-	const getMoisture = (x, y) => {
-		let nx = x / width - 0.5,
-			ny = y / height - 0.5
-		let m =
-			1.0 * moistureNoise(1 * nx, 1 * ny) +
-			0.75 * moistureNoise(2 * nx, 2 * ny) +
-			0.33 * moistureNoise(4 * nx, 4 * ny) +
-			0.33 * moistureNoise(8 * nx, 8 * ny) +
-			0.33 * moistureNoise(16 * nx, 16 * ny) +
-			0.5 * moistureNoise(32 * nx, 32 * ny)
-		m /= 1.0 + 0.75 + 0.33 + 0.33 + 0.33 + 0.5
-		return m
-	}
-
-	const getBiome = e => {
-		if (e <= 0.3) {
-			return biomeTypes.OCEAN
-		} else if (e <= 0.5) {
-			return biomeTypes.COASTAL
-		} else if (e <= 0.7) {
-			return biomeTypes.SWAMP
-		} else if (e <= 3) {
-			return biomeTypes.GRASSLAND
-		} else if (e <= 6) {
-			return biomeTypes.FOREST
-		} else if (e <= 8) {
-			return biomeTypes.HILL
-		} else if (e <= 12) {
-			return biomeTypes.LOW_MOUNTAIN
-		} else if (e > 15) {
-			return biomeTypes.HIGH_MOUNTAIN
-		}
-	}
-
-	for (let y = 0; y < h; y++) {
-		for (let x = 0; x < w; x++) {
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
 			// Find what the elevation & prescribed biome is for this tile
 			let elevation = getElevation(x, y, width, height)
 			let biome = getBiome(elevation)
@@ -129,7 +126,7 @@ export function randomSimplexMap(width, height, zoom) {
 			let obstacleType = ROT.RNG.getWeightedValue(biomes[biome])
 			let newObstacle = obstacleFactory(obstacleType, { x, y })
 			let tile = gameMap.tileAt(x, y)
-			tile.obstacles.push(newObstacle)
+			tile.entities.push(newObstacle)
 			tile.metadata = {
 				biome,
 				elevation
@@ -137,7 +134,7 @@ export function randomSimplexMap(width, height, zoom) {
 		}
 	}
 
-	gameMap.playerLocation = [~~(w / 2), ~~(h / 2)]
+	console.log(gameMap)
 
 	return gameMap
 }

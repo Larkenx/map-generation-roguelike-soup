@@ -15,14 +15,14 @@ export class GameMap {
 		}
 	}
 
-	getActors() {
-		let actors = []
+	getEntities() {
+		let entities = []
 		for (let row of this.data) {
 			for (let tile of row) {
-				actors = actors.concat(tile.actors)
+				entities = entities.concat(tile.entities)
 			}
 		}
-		return actors
+		return entities
 	}
 
 	getTile(x, y) {

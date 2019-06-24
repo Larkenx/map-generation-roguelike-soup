@@ -20,7 +20,7 @@ html {
           justify-center
           align-content-center
         >
-          <PixiRenderer />
+          <div id="pixi_canvas" />
         </v-layout>
       </v-container>
     </v-content>
@@ -28,16 +28,13 @@ html {
 </template>
 
 <script>
-// import { mapState, mapMutations } from 'vuex'
-import PixiRenderer from '@/components/PixiRenderer'
-
+import Game from '@/assets/Game'
 export default {
 	name: 'App',
-	components: {
-		PixiRenderer
-	},
-	// computed: mapState(['map']),
 	methods: {},
-	created() {}
+	mounted() {
+		Game.initialize({ width: 800, height: 800 })
+		console.log(Game)
+	}
 }
 </script>
