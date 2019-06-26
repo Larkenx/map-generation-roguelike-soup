@@ -1,5 +1,5 @@
 import Entity from '../Entity'
-import { Glyph } from '../traits/index'
+import Glyph from '../traits/Glyph'
 
 import COLOR from '../../utils/theme'
 

@@ -157,30 +157,6 @@ export default class GameDisplay {
 	renderMap(map, options) {
 		let { renderer, stage } = this.app
 		let { spriteWidth, spriteHeight } = this.selectedTileset
-		renderer.view.addEventListener('wheel', function(e) {
-			//let zoom_in = e.deltaY < 0 ? true : false;
-			let zoom_in = e.deltaY < 0 //simplified
-			let zoom_factor
-			if (zoom_in) {
-				zoom_factor = 1.1
-			} else {
-				zoom_factor = 1 / 1.1
-			}
-
-			//zoom
-			stage.scale.x *= zoom_factor
-			stage.scale.y *= zoom_factor
-
-			//center on cursor
-			let mouse_loc = renderer.plugins.interaction.eventData.data.global
-			stage.x -= (mouse_loc.x - stage.x) * (zoom_factor - 1)
-			stage.y -= (mouse_loc.y - stage.y) * (zoom_factor - 1)
-
-			correct(renderer, stage)
-
-			renderer.render(stage)
-			e.preventDefault()
-		})
 		this.app.ticker.add(delta => this.renderOnTick(delta))
 		stage.removeChildren()
 		this.gameView = new PIXI.Container()
