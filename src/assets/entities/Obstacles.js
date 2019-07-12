@@ -1,7 +1,7 @@
 import Entity from '../Entity'
-import Glyph from '../traits/Glyph'
+import Glyph from '../display/Glyph'
 
-import COLOR from '../../utils/theme'
+import COLOR from '../utils/Colors'
 
 export const obstacleTypes = {
 	DIRT: 'DIRT',
@@ -15,11 +15,18 @@ export const obstacleTypes = {
 	LOW_MOUNTAIN: 'LOW_MOUNTAIN',
 	HIGH_MOUNTAIN: 'HIGH_MOUNTAIN',
 	HILL: 'HILL',
+	HILL_TREE: 'HILL_TREE',
 	DEEP_WATER: 'DEEP_WATER',
 	ROCK: 'ROCK'
 }
 
 const obstacleDefinitions = {
+	[obstacleTypes.HILL_TREE]: {
+		glyph: new Glyph({
+			character: '↑',
+			fg: COLOR.DARKER_GREEN
+		})
+	},
 	[obstacleTypes.DIRT]: {
 		glyph: new Glyph({
 			character: '.',

@@ -1,4 +1,5 @@
 const COLOR = {
+	DARKER_GREEN: '#266104',
 	DARK_GREEN: '#3a9108',
 	GREEN: '#5fb52f',
 	BRIGHT_GREEN: '#01b74a',

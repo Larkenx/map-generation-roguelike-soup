@@ -6,7 +6,7 @@ import SimplexNoise from 'simplex-noise'
 import RNG from 'prng-parkmiller-js'
 import { GameMap } from '@/assets/map/GameMap.js'
 import { getRandomInt, getNormalRandomInt, randomProperty, between, flatten } from '@/assets/utils/HelperFunctions.js'
-import { obstacleTypes, obstacleFactory } from '@/assets/entity/obstacles'
+import { obstacleTypes, obstacleFactory } from '@/assets/entity/obstacles/Obstacles'
 
 const biomeTypes = {
 	OCEAN: 'OCEAN',
@@ -15,7 +15,8 @@ const biomeTypes = {
 	FOREST: 'FOREST',
 	LOW_MOUNTAIN: 'LOW_MOUNTAIN',
 	HIGH_MOUNTAIN: 'HIGH_MOUNTAIN',
-	SWAMP: 'SWAMP'
+	SWAMP: 'SWAMP',
+	TUNDRA: 'TUNDRA'
 }
 
 const biomes = {
@@ -37,12 +38,18 @@ const biomes = {
 		[obstacleTypes.BUSH]: 5
 	},
 	[biomeTypes.FOREST]: {
-		[obstacleTypes.GRASS]: 10,
+		[obstacleTypes.GRASS]: 25,
 		[obstacleTypes.FOREST_TREE]: 50,
 		[obstacleTypes.SHRUB]: 10
 	},
 	[biomeTypes.HILL]: {
-		[obstacleTypes.HILL]: 10
+		[obstacleTypes.HILL]: 10,
+		[obstacleTypes.DIRT]: 10,
+		[obstacleTypes.HILL_TREE]: 5
+	},
+	[biomeTypes.TUNDRA]: {
+		[obstacleTypes.ROCK]: 15,
+		[obstacleTypes.HILL_TREE]: 5
 	},
 	[biomeTypes.LOW_MOUNTAIN]: {
 		[obstacleTypes.LOW_MOUNTAIN]: 1
@@ -58,7 +65,7 @@ let rng1 = RNG.create(seed1)
 let rng2 = RNG.create(seed2)
 let gen1 = new SimplexNoise(rng1.nextDouble.bind(rng1))
 let gen2 = new SimplexNoise(rng2.nextDouble.bind(rng2))
-let frequency = 1.5
+let frequency = 0.8
 
 const elevationNoise = (nx, ny) => {
 	return gen1.noise2D(nx, ny) / 2 + 0.5
@@ -86,15 +93,17 @@ export const getBiome = e => {
 		return biomeTypes.COASTAL
 	} else if (e <= 0.7) {
 		return biomeTypes.SWAMP
-	} else if (e <= 3) {
+	} else if (e <= 4) {
 		return biomeTypes.GRASSLAND
-	} else if (e <= 6) {
-		return biomeTypes.FOREST
-	} else if (e <= 8) {
-		return biomeTypes.HILL
 	} else if (e <= 12) {
+		return biomeTypes.FOREST
+	} else if (e <= 18) {
+		return biomeTypes.HILL
+	} else if (e <= 22) {
+		return biomeTypes.TUNDRA
+	} else if (e <= 25) {
 		return biomeTypes.LOW_MOUNTAIN
-	} else if (e > 15) {
+	} else if (e > 25) {
 		return biomeTypes.HIGH_MOUNTAIN
 	}
 }

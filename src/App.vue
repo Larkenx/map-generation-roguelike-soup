@@ -33,7 +33,7 @@ export default {
 	name: 'App',
 	methods: {},
 	mounted() {
-		Game.initialize({ width: 800, height: 800 })
+		Game.initialize({ width: 1200, height: 800 })
 		console.log(Game)
 	}
 }
