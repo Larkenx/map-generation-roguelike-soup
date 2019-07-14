@@ -2,8 +2,8 @@
  * Created by larken on 7/12/17.
  */
 
-import { Actor } from '@/entities/actors/Actor.js'
-import { getRandomInt } from '@/utils/HelperFunctions'
+import { Actor } from 'src/assets/entities/actors/Actor.js'
+import { getRandomInt } from 'src/assets/utils/HelperFunctions'
 
 import ROT from 'rot-js'
 
@@ -14,7 +14,7 @@ export default class NPC extends Actor {
 			bg: 'orange',
 			name: 'non-player character',
 			visible: true,
-			blocked: true,
+			walkable: false,
 			cb: {
 				hostile: false
 			}

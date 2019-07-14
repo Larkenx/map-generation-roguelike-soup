@@ -1,12 +1,10 @@
 /**
  * Created by Larken on 6/22/2017.
  */
-import {Game} from '@/Game.js'
-import {Entity} from '@/entities/Entity.js'
-
+import { Game } from 'src/assets/Game.js'
+import { Entity } from 'src/assets/entities/Entity.js'
 
 export default class Store extends Entity {
-
 	constructor(x, y) {
 		super(x, y, {
 			name: 'Store',
@@ -15,7 +13,7 @@ export default class Store extends Entity {
 			fg: 'darkgreen',
 			bg: 'transparent',
 			visible: true,
-			blocked: true
+			walkable: false
 		})
 		this.items = []
 		this.exchangeRate = 0.5
@@ -26,11 +24,9 @@ export default class Store extends Entity {
 		super.act()
 	}
 
-	interact(actor) {
-	}
+	interact(actor) {}
 
-	react(actor) {
-	}
+	react(actor) {}
 
 	/* Returns the number of items available for a given item */
 	stock(item) {

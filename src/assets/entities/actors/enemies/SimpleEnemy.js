@@ -1,5 +1,5 @@
-import { StatelessAI } from '@/entities/actors/enemies/StatelessAI.js'
-import { Game } from '@/Game.js'
+import { StatelessAI } from 'src/assets/entities/actors/enemies/StatelessAI.js'
+import Game from 'src/assets/Game.js'
 import ROT from 'rot-js'
 
 /* Simple enemy class to encapsulate all enemies with very simple AI.

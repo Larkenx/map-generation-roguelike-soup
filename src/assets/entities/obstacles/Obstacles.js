@@ -1,7 +1,6 @@
-import Entity from '../Entity'
-import Glyph from '../display/Glyph'
-
-import COLOR from '../utils/Colors'
+import Entity from 'src/assets/entities/Entity'
+import Glyph from 'src/assets/display/Glyph'
+import Colors from 'src/assets/utils/Colors'
 
 export const obstacleTypes = {
 	DIRT: 'DIRT',
@@ -24,95 +23,111 @@ const obstacleDefinitions = {
 	[obstacleTypes.HILL_TREE]: {
 		glyph: new Glyph({
 			character: '↑',
-			fg: COLOR.DARKER_GREEN
-		})
+			fg: Colors.DARKER_GREEN
+		}),
+		walkable: false
 	},
 	[obstacleTypes.DIRT]: {
 		glyph: new Glyph({
 			character: '.',
-			fg: COLOR.BROWN
-		})
+			fg: Colors.BROWN
+		}),
+		walkable: true
 	},
 	[obstacleTypes.SHALLOW_WATER]: {
 		glyph: new Glyph({
 			character: '~',
-			fg: COLOR.BLUE
-		})
+			fg: Colors.BLUE
+		}),
+		walkable: true
 	},
 	[obstacleTypes.FOREST_TREE]: {
 		glyph: new Glyph({
 			character: '↑',
-			fg: COLOR.DARK_GREEN
-		})
+			fg: Colors.DARK_GREEN
+		}),
+		walkable: false
 	},
 	[obstacleTypes.GRASS]: {
 		glyph: new Glyph({
 			character: '.',
-			fg: COLOR.GREEN
-		})
+			fg: Colors.GREEN
+		}),
+		walkable: true
 	},
 	[obstacleTypes.SHRUB]: {
 		glyph: new Glyph({
 			character: "'",
-			fg: COLOR.BRIGHT_GREEN
-		})
+			fg: Colors.BRIGHT_GREEN
+		}),
+		walkable: true
 	},
 	[obstacleTypes.FLOWER]: {
 		glyph: new Glyph({
 			character: ',',
-			fg: COLOR.BRIGHT_GREEN
-		})
+			fg: Colors.BRIGHT_GREEN
+		}),
+		walkable: true
 	},
 	[obstacleTypes.BUSH]: {
 		glyph: new Glyph({
 			character: '"',
-			fg: COLOR.BRIGHT_GREEN
-		})
+			fg: Colors.BRIGHT_GREEN
+		}),
+		walkable: true
 	},
 	[obstacleTypes.TALL_GRASS]: {
 		glyph: new Glyph({
 			character: String.fromCharCode(0x2320), // '?'
-			fg: COLOR.BRIGHT_GREEN
-		})
+			fg: Colors.BRIGHT_GREEN
+		}),
+		walkable: true
 	},
 	[obstacleTypes.ROCK]: {
 		glyph: new Glyph({
 			character: '.',
-			fg: COLOR.WHITE
-		})
+			fg: Colors.WHITE
+		}),
+		walkable: true
 	},
 	[obstacleTypes.HILL]: {
 		glyph: new Glyph({
 			character: '^',
-			fg: COLOR.BROWN
-		})
+			fg: Colors.BROWN
+		}),
+		walkable: false
 	},
 	[obstacleTypes.LOW_MOUNTAIN]: {
 		glyph: new Glyph({
 			character: String.fromCharCode(0x25b2),
-			fg: COLOR.GRAY
-		})
+			fg: Colors.GRAY
+		}),
+		walkable: false
 	},
 	[obstacleTypes.HIGH_MOUNTAIN]: {
 		glyph: new Glyph({
 			character: String.fromCharCode(0x25b2),
-			fg: COLOR.WHITE
-		})
+			fg: Colors.WHITE
+		}),
+		walkable: false
 	},
 	[obstacleTypes.DEEP_WATER]: {
 		glyph: new Glyph({
 			character: '≈',
-			fg: COLOR.DARK_BLUE
-		})
+			fg: Colors.DARK_BLUE
+		}),
+		walkable: false
 	}
 }
 
-export const obstacleFactory = (obstacleType, configuration) => {
-	if (!(obstacleType in obstacleTypes)) {
-		console.trace('Unknown obstacle creation: ', obstacleType)
-		throw new Error('Unknown obstacle creation: ')
-	}
+export class ObstacleFactory {
+	static create(obstacleType, configuration) {
+		if (!(obstacleType in obstacleTypes)) {
+			console.trace('Unknown obstacle creation: ', obstacleType)
+			throw new Error('Unknown obstacle creation: ')
+		}
 
-	let defaultConfiguration = obstacleDefinitions[obstacleType]
-	return new Entity({ ...defaultConfiguration, ...configuration })
+		let defaultConfiguration = obstacleDefinitions[obstacleType]
+		return new Entity({ ...defaultConfiguration, ...configuration })
+	}
 }

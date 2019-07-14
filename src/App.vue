@@ -16,10 +16,7 @@ html {
     </v-toolbar>
     <v-content>
       <v-container fill-height>
-        <v-layout
-          justify-center
-          align-content-center
-        >
+        <v-layout justify-center align-content-center>
           <div id="pixi_canvas" />
         </v-layout>
       </v-container>
@@ -28,7 +25,7 @@ html {
 </template>
 
 <script>
-import Game from '@/assets/Game'
+import Game from 'src/assets/Game'
 export default {
 	name: 'App',
 	methods: {},

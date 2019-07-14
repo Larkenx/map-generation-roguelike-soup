@@ -1,6 +1,6 @@
-import { Actor } from '@/entities/actors/Actor.js'
-import { Game } from '@/Game.js'
-import { getVisibleTiles, getDiceRoll, addPrefix, getRandomInt } from '@/utils/HelperFunctions'
+import { Actor } from 'src/assets/entities/actors/Actor.js'
+import Game from 'src/assets/Game.js'
+import { getVisibleTiles, getDiceRoll, addPrefix, getRandomInt } from 'src/assets/utils/HelperFunctions'
 
 import ROT from 'rot-js'
 
@@ -59,12 +59,12 @@ export class StatelessAI extends Actor {
 					let diff = ROT.DIRS[8][i]
 					let x = this.x + diff[0]
 					let y = this.y + diff[1]
-					if (Game.inbounds(x, y)) {
-						let ctile = Game.getTile(x, y)
+					if (Game.map.inbounds(x, y)) {
+						let ctile = Game.map.getTile(x, y)
 						if (!ctile.blocked() && ctile.actors.length === 0) nearbyTiles.push(ctile)
 					}
 				}
-				nearbyTiles.push(Game.getTile(this.x, this.y))
+				nearbyTiles.push(Game.map.getTile(this.x, this.y))
 				return nearbyTiles
 			}
 

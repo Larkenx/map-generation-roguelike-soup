@@ -1,8 +1,8 @@
-import { Game } from '@/Game.js'
-import { Actor } from '@/entities/actors/Actor.js'
-import EventHandler from '@/utils/EventHandler.js'
-import { DoNothingGoal, RandomMovementGoal } from '@/utils/Goals.js'
-import { getVisibleTiles } from '@/utils/HelperFunctions'
+import Game from 'src/assets/Game.js'
+import { Actor } from 'src/assets/entities/actors/Actor.js'
+import EventHandler from 'src/assets/utils/EventHandler.js'
+import { DoNothingGoal, RandomMovementGoal } from 'src/assets/utils/Goals.js'
+import { getVisibleTiles } from 'src/assets/utils/HelperFunctions'
 
 /* 
     Inspired by: https://youtu.be/4uxN5GqXcaA (Caves of Qud goal driven AI), 

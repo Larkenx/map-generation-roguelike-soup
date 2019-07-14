@@ -1,4 +1,4 @@
-import Tile from '@/assets/map/Tile.js'
+import Tile from 'src/assets/map/Tile.js'
 
 export class GameMap {
 	constructor(width, height, name) {

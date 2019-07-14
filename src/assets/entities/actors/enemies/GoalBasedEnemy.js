@@ -1,8 +1,7 @@
-import { Game } from '@/Game.js'
-import GoalBasedAI from '@/entities/actors/GoalBasedAI.js'
-import Gold from '@/entities/items/misc/Gold.js'
-import Chest from '@/entities/misc/Chest.js'
-import { getVisibleTiles, getRandomInt } from '@/utils/HelperFunctions'
+import Game from 'src/assets/Game.js'
+import GoalBasedAI from 'src/assets/entities/actors/GoalBasedAI.js'
+import Chest from 'src/assets/entities/misc/Chest.js'
+import { getVisibleTiles, getRandomInt } from 'src/assets/utils/HelperFunctions'
 import {
 	LootFilter,
 	EntityFilter,
@@ -13,8 +12,8 @@ import {
 	FindTreasureGoal,
 	AStarPathingGoal,
 	AutoexploreGoal
-} from '@/utils/Goals.js'
-import { createItem } from '@/utils/EntityFactory.js'
+} from 'src/assets/utils/Goals.js'
+import { createItem } from 'src/assets/utils/EntityFactory.js'
 export default class GoalBasedEnemy extends GoalBasedAI {
 	constructor(x, y, options) {
 		super(x, y, options)
@@ -38,7 +37,7 @@ export class LootGoblin extends GoalBasedEnemy {
 			name: 'Loot Goblin',
 			description: 'A goblin with an unfulfillable desire for treasure & loot.',
 			visible: true,
-			blocked: true,
+			walkable: false,
 			chasing: false,
 			wanders: true,
 			canLoot: true,
@@ -68,15 +67,16 @@ export class LootGoblin extends GoalBasedEnemy {
 			return t.actors.some(a => (a instanceof Chest && a.closed) || a instanceof Gold)
 		}
 		let tilesWithTreasure = visibleTiles.filter(t => !this.interactedEntities.includes(t) && tileHasGoldOrChest(t))
-		if (tilesWithTreasure.length > 0) { // TODO: need to make sure we don't revisit the same target twice
+		if (tilesWithTreasure.length > 0) {
+			// TODO: need to make sure we don't revisit the same target twice
 			let entity = tilesWithTreasure.pop()
-			this.addGoal(AStarPathingGoal(
-				{
+			this.addGoal(
+				AStarPathingGoal({
 					entity,
-					stopCondition: ({ entity }) => !tileHasGoldOrChest(entity),
+					stopCondition: Entity => !tileHasGoldOrChest(entity),
 					finalAction: () => this.pickup()
-
-				}))
+				})
+			)
 			this.interactedEntities.push(entity)
 		}
 		super.performGoal()

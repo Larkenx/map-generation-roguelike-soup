@@ -1,5 +1,5 @@
-import { Game } from '@/Game.js'
-import { Entity } from '@/entities/Entity.js'
+import Game from 'src/assets/Game.js'
+import Entity from 'src/assets/entities/Entity.js'
 
 export default class LevelTransition extends Entity {
 	constructor(x, y, id) {
@@ -9,7 +9,7 @@ export default class LevelTransition extends Entity {
 			description: 'A path leading to a new area!',
 			fg: 'brown',
 			bg: 'orange',
-			blocked: true,
+			walkable: false,
 			visible: true
 		})
 		this.portal = null

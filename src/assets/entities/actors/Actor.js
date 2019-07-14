@@ -3,20 +3,17 @@
  */
 import ROT from 'rot-js'
 import * as PIXI from 'pixi.js'
-import { Game } from '@/Game.js'
-import { Entity } from '@/entities/Entity.js'
-import { getRandomInt, getNormalRandomInt, addPrefix } from '@/utils/HelperFunctions.js'
-import Door from '@/entities/misc/Door.js'
-import Chest from '@/entities/misc/Chest.js'
-import { Buff } from '@/modifiers/Buff.js'
-import { Corpse, corpseTypes } from '@/entities/items/misc/Corpse.js'
-import Item from '@/entities/items/Item.js'
+import Game from 'src/assets/Game.js'
+import Entity from 'src/assets/entities/Entity.js'
+import { getRandomInt, getNormalRandomInt, addPrefix } from 'src/assets/utils/HelperFunctions.js'
+import Door from 'src/assets/entities/misc/Door.js'
+import Chest from 'src/assets/entities/misc/Chest.js'
 
 export class Actor extends Entity {
 	constructor(x, y, options, routine = null) {
 		super(x, y, options)
 		this.visible = true
-		this.blocked = true
+		this.walkable = true
 		if (this.corpseType === undefined) this.corpseType = corpseTypes.HUMANOID
 		this.cb.effects = []
 		this.cb.equipment = {
@@ -96,7 +93,7 @@ export class Actor extends Entity {
 			for (let i = 0; i < ntile.actors.length; i++) {
 				let actor = ntile.actors[i]
 				// this actor has stumbled upon another actor
-				if (actor instanceof Actor && actor.blocked && actor.visible) {
+				if (actor instanceof Actor && !actor.walkable && actor.visible) {
 					if (!actor.isDead()) {
 						this.interact(actor)
 					}

@@ -7,7 +7,7 @@ export default class Tile {
 	}
 
 	blocked() {
-		return this.entities.some(o => o.blocked)
+		return this.entities.some(o => !o.walkable)
 	}
 
 	visible() {

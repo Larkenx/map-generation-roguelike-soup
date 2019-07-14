@@ -1,14 +1,14 @@
 import ROT from 'rot-js'
 
 export function pathfinding(x, y) {
-	// return Game.inbounds(x, y) && !Game.getTile(x, y).blocked()
+	return Game.map.inbounds(x, y) && !Game.map.getTile(x, y).blocked()
 }
 
 export function configurablePathfinding(options = {}) {
 	let andConditions = []
 	let orConditions = []
 	andConditions.push((x, y) => {
-		// return Game.inbounds(x, y) && !Game.getTile(x, y).blockedByAnything()
+		return Game.map.inbounds(x, y) && !Game.map.getTile(x, y).blockedByAnything()
 	})
 	// if we exlude the starting location, a tile is considered not blocked
 	// if we're standing on it
@@ -122,11 +122,11 @@ export function neighbors({ x, y }, predicate) {
 }
 
 export function outOfBoundsOrBlocked(x, y) {
-	return !Game.inbounds(x, y) || Game.getTile(x, y).blocked()
+	return !Game.map.inbounds(x, y) || Game.map.getTile(x, y).blocked()
 }
 
 export function outOfBoundsOrBlockedByAnything(x, y) {
-	return !Game.inbounds(x, y) || Game.getTile(x, y).blockedByAnything()
+	return !Game.map.inbounds(x, y) || Game.map.getTile(x, y).blockedByAnything()
 }
 
 export function unexploredTiles(actor) {
@@ -187,7 +187,7 @@ export function stringifyDijkstraMap(map, start, width, height) {
 				character = distance <= 36 ? distance.toString(36) : '!'
 				if (start.x === x && start.y === y) character = '@'
 			} else {
-				character = Game.inbounds(x, y) && Game.getTile(x, y).blocked() ? ' ' : '.'
+				character = Game.map.inbounds(x, y) && Game.map.getTile(x, y).blocked() ? ' ' : '.'
 			}
 			characterMap[y].push(character)
 		}
@@ -226,6 +226,21 @@ export function computeBitmaskWalls(x, y, blockedCells) {
 	if (blocked(ll) && blocked(below) && blocked(left)) sum += 32
 	if (blocked(lr) && blocked(below) && blocked(right)) sum += 128
 	return sum
+}
+
+export function findStartingLocation(map) {
+	for (let y = 1; y <= map.height - 1; y++) {
+		for (let x = 1; y <= map.width - 1; x++) {
+			let surroundingTiles = neighbors({ x, y }, (tx, ty) => {
+				return !map.tileAt(tx, ty).blocked()
+			})
+			if (surroundingTiles.length === 8) {
+				return { x, y }
+			}
+		}
+	}
+	console.warn('Could not find starting location that was not blocked with the given map!')
+	return { x: 0, y: 0 }
 }
 
 export const sumToTileIdMap = {

@@ -2,9 +2,9 @@
  * Created by Larken on 7/8/2017.
  */
 
-import { Game } from '@/Game.js'
-import { Entity } from '@/entities/Entity.js'
-import { addPrefix } from '@/utils/HelperFunctions.js'
+import Game from 'src/assets/Game.js'
+import Entity from 'src/assets/entities/Entity.js'
+import { addPrefix } from 'src/assets/utils/HelperFunctions.js'
 
 export default class Chest extends Entity {
 	constructor(x, y, id) {
@@ -12,7 +12,7 @@ export default class Chest extends Entity {
 			name: 'chest',
 			id: id,
 			visible: true,
-			blocked: true
+			walkable: false
 		})
 		this.closed = true
 		this.items = []

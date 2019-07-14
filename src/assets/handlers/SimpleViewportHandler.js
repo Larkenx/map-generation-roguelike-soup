@@ -1,5 +1,5 @@
 import ROT from 'rot-js'
-import Game from '@/assets/Game'
+import Game from 'src/assets/Game'
 
 export default class SimpleViewportHandler {
 	keyTimer = null

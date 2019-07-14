@@ -2,30 +2,14 @@
  * Created by Larken on 6/22/2017.
  */
 import ROT from 'rot-js'
-import { Game } from '@/Game.js'
-import { Actor } from '@/entities/actors/Actor.js'
+import Game from 'src/assets/Game.js'
+import { Actor } from 'src/assets/entities/actors/Actor.js'
 
-import { addPrefix, pathfinding, getVisibleTiles } from '@/utils/HelperFunctions.js'
-// Weapons
-import { materialTypes } from '@/utils/Constants.js'
-import { Sword } from '@/entities/items/weapons/Sword.js'
-
-import { createBow } from '@/entities/items/weapons/ranged/Bow.js'
-import { SteelArrow } from '@/entities/items/weapons/ranged/ammo/Arrow.js'
-// Potions
-import HealthPotion from '@/entities/items/potions/HealthPotion.js'
-import StrengthPotion from '@/entities/items/potions/StrengthPotion.js'
-import ManaPotion from '@/entities/items/potions/ManaPotion.js'
-// Spells
-import { targetTypes, spellTypes, MagicDart, FireBall, Rage, MinorHeal, Shock } from '@/magic/Spell.js'
-// effects
-import { BleedEnchantment } from '@/modifiers/Enchantment.js'
+import { addPrefix, pathfinding, getVisibleTiles } from 'src/assets/utils/HelperFunctions.js'
 // Misc
-import Ladder from '@/entities/misc/Ladder.js'
-import Gold from '@/entities/items/misc/Gold.js'
-import Chest from '@/entities/misc/Chest.js'
-import Item from '@/entities/items/Item.js'
-import { createItem } from '@/utils/EntityFactory.js'
+import Ladder from 'src/assets/entities/misc/Ladder.js'
+import Chest from 'src/assets/entities/misc/Chest.js'
+import { createItem } from 'src/assets/utils/EntityFactory.js'
 import { AutoexploreGoal } from '../../utils/Goals'
 
 const movementKeys = [
@@ -52,18 +36,16 @@ const movementKeys = [
 ]
 
 export default class Player extends Actor {
-	constructor(x, y, id) {
-		super(x, y, {
+	constructor(configuration) {
+		super({
 			id: id,
 			name: 'you',
 			description: "It's you!",
-			fg: 'yellow',
-			bg: 'yellow',
 			visible: true,
 			targeting: false,
 			casting: false,
 			examining: false,
-			blocked: true,
+			walkable: false,
 			leveled_up: true,
 			mouseEnabled: false,
 			canLoot: true,
@@ -99,7 +81,8 @@ export default class Player extends Actor {
 				chestsOpened: 0,
 				dead: false
 			},
-			keyTimer: null
+			keyTimer: null,
+			...configuration
 		})
 		this.keyMap = {
 			// Arrow Pad
@@ -239,7 +222,7 @@ export default class Player extends Actor {
 
 		// FOV calculations
 		let fov = new ROT.FOV.RecursiveShadowcasting((x, y) => {
-			return Game.inbounds(x, y) && Game.getTile(x, y).visible()
+			return Game.map.inbounds(x, y) && Game.map.getTile(x, y).visible()
 		})
 		if (Game.map.revealed) this.seenTiles = Game.map.getTiles()
 
@@ -390,7 +373,7 @@ export default class Player extends Actor {
 				if (weapon !== null && ammo !== null && weapon.cb.ranged && ammo.cb.ammoType === weapon.cb.ammoType && ammo.quantity > 0) {
 					this.validTarget = Game.selectNearestEnemyTile(`You are aiming with your ${weapon.type.toLowerCase()}. `)
 					if (!this.validTarget)
-						Game.changeSelectedTile(Game.getTile(this.x, this.y), `You are aiming with your ${weapon.type.toLowerCase()}. `)
+						Game.changeSelectedTile(Game.map.getTile(this.x, this.y), `You are aiming with your ${weapon.type.toLowerCase()}. `)
 					this.targeting = true
 					return
 				} else {
@@ -419,14 +402,15 @@ export default class Player extends Actor {
 					this.cb.mana -= currentSpell.manaCost
 				} else if (currentSpell.targetType === targetTypes.TARGET) {
 					this.validTarget = Game.selectNearestEnemyTile(`You are casting ${currentSpell.name}. `)
-					if (!this.validTarget) Game.changeSelectedTile(Game.getTile(this.x, this.y), `You are casting ${currentSpell.name}. `)
+					if (!this.validTarget)
+						Game.changeSelectedTile(Game.map.getTile(this.x, this.y), `You are casting ${currentSpell.name}. `)
 					this.casting = true
 					// our first selected tile can be the nearest enemy
 					return
 				}
 			} else if (action === 'examine') {
 				this.examining = true
-				Game.changeSelectedTile(Game.getTile(this.x, this.y), 'You are examining the area. ')
+				Game.changeSelectedTile(Game.map.getTile(this.x, this.y), 'You are examining the area. ')
 				return
 			} else if (action === 'interact') {
 				this.interacting = true
@@ -460,8 +444,8 @@ export default class Player extends Actor {
 			let diff = ROT.DIRS[8][this.keyMap[keyCode]]
 			let x = Game.selectedTile.x + diff[0]
 			let y = Game.selectedTile.y + diff[1]
-			if (Game.inbounds(x, y) && Game.inViewport(x, y)) {
-				Game.changeSelectedTile(Game.getTile(x, y))
+			if (Game.map.inbounds(x, y) && Game.inViewport(x, y)) {
+				Game.changeSelectedTile(Game.map.getTile(x, y))
 				this.validTarget = !Game.selectedTile.blocked() && Game.map.visible_tiles[x + ',' + y] !== undefined
 			}
 		} else if (cycleKeys.includes(keyCode)) {
@@ -542,8 +526,8 @@ export default class Player extends Actor {
 			let diff = ROT.DIRS[8][this.keyMap[keyCode]]
 			let x = Game.selectedTile.x + diff[0]
 			let y = Game.selectedTile.y + diff[1]
-			if (Game.inbounds(x, y) && Game.inViewport(x, y)) {
-				Game.changeSelectedTile(Game.getTile(x, y))
+			if (Game.map.inbounds(x, y) && Game.inViewport(x, y)) {
+				Game.changeSelectedTile(Game.map.getTile(x, y))
 				this.validTarget = !Game.selectedTile.blocked() && Game.map.visible_tiles[x + ',' + y] !== undefined
 			}
 		} else if (cycleKeys.includes(keyCode)) {
@@ -596,8 +580,8 @@ export default class Player extends Actor {
 			let diff = ROT.DIRS[8][this.keyMap[keyCode]]
 			let x = Game.selectedTile.x + diff[0]
 			let y = Game.selectedTile.y + diff[1]
-			if (Game.inbounds(x, y) && Game.inViewport(x, y)) {
-				Game.changeSelectedTile(Game.getTile(x, y))
+			if (Game.map.inbounds(x, y) && Game.inViewport(x, y)) {
+				Game.changeSelectedTile(Game.map.getTile(x, y))
 				this.validTarget = !Game.selectedTile.blocked() && Game.map.visible_tiles[x + ',' + y] !== undefined
 			}
 		} else if (cycleKeys.includes(keyCode)) {
@@ -614,8 +598,8 @@ export default class Player extends Actor {
 			let [x, y] = ROT.DIRS[8][this.keyMap[keyCode]]
 			let dx = this.x + x
 			let dy = this.y + y
-			if (Game.inbounds(dx, dy)) {
-				let { actors } = Game.getTile(dx, dy)
+			if (Game.map.inbounds(dx, dy)) {
+				let { actors } = Game.map.getTile(dx, dy)
 				if (actors.length > 0) {
 					this.interact(actors.slice(-1).pop())
 				}
@@ -953,8 +937,8 @@ export default class Player extends Actor {
 
 	tryMove(nx, ny) {
 		// returns true if the turn should end here
-		if (!Game.inbounds(nx, ny)) return
-		let ntile = Game.getTile(nx, ny) // new tile to move to
+		if (!Game.map.inbounds(nx, ny)) return
+		let ntile = Game.map.getTile(nx, ny) // new tile to move to
 		if (ntile.actors.length === 0 && !ntile.blocked()) {
 			this.move(nx, ny)
 			Game.clearSelectedTile()

@@ -4,9 +4,9 @@
 import ROT from 'rot-js'
 import SimplexNoise from 'simplex-noise'
 import RNG from 'prng-parkmiller-js'
-import { GameMap } from '@/assets/map/GameMap.js'
-import { getRandomInt, getNormalRandomInt, randomProperty, between, flatten } from '@/assets/utils/HelperFunctions.js'
-import { obstacleTypes, obstacleFactory } from '@/assets/entity/obstacles/Obstacles'
+import { GameMap } from 'src/assets/map/GameMap.js'
+import { getRandomInt, getNormalRandomInt, randomProperty, between, flatten } from 'src/assets/utils/HelperFunctions.js'
+import { obstacleTypes, ObstacleFactory } from 'src/assets/entities/obstacles/Obstacles'
 
 const biomeTypes = {
 	OCEAN: 'OCEAN',
@@ -133,7 +133,7 @@ export function randomSimplexMap(width, height) {
 			let biome = getBiome(elevation)
 			// Get a new type of appropriate flora/fauna for this biome
 			let obstacleType = ROT.RNG.getWeightedValue(biomes[biome])
-			let newObstacle = obstacleFactory(obstacleType, { x, y })
+			let newObstacle = ObstacleFactory.create(obstacleType, { x, y })
 			let tile = gameMap.tileAt(x, y)
 			tile.entities.push(newObstacle)
 			tile.metadata = {
