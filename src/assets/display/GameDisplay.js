@@ -161,6 +161,11 @@ export default class GameDisplay {
 		// this.app.ticker.add(delta => this.renderOnTick(delta))
 		stage.removeChildren()
 		this.gameView = new PIXI.Container()
+		let background = new PIXI.Sprite(PIXI.Texture.WHITE)
+		background.width = this.width
+		background.height = this.height
+		background.tint = 0x2a5250
+		this.gameView.addChild(background)
 		let viewport = {
 			width: this.width / (spriteWidth * this.scale),
 			height: this.height / (spriteHeight * this.scale)
@@ -193,7 +198,7 @@ export default class GameDisplay {
 			for (let y = startingPos[1]; y < endingPos[1]; y++) {
 				let tile = map.getTile(x, y)
 				for (let entity of tile.entities) {
-					if (!Object.is(player, entity)) {
+					if (!Object.is(entity, player) && (player.x !== x || player.y !== y)) {
 						if (entity.glyph) {
 							// TODO: Add support for animated glyphs
 							let { character, fg, bg } = entity.glyph
