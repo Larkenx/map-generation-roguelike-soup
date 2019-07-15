@@ -10,11 +10,8 @@ import Door from 'src/assets/entities/misc/Door.js'
 import Chest from 'src/assets/entities/misc/Chest.js'
 
 export class Actor extends Entity {
-	constructor(x, y, options, routine = null) {
-		super(x, y, options)
-		this.visible = true
-		this.walkable = true
-		if (this.corpseType === undefined) this.corpseType = corpseTypes.HUMANOID
+	constructor(props) {
+		super(props)
 		this.cb.effects = []
 		this.cb.equipment = {
 			head: null,
@@ -86,12 +83,12 @@ export class Actor extends Entity {
 		// returns true if the turn should end here
 		if (nx < 0 || nx === Game.map.width || ny < 0 || ny === Game.map.height) return false
 		let ntile = Game.map.data[ny][nx] // new tile to move to
-		if (ntile.actors.length === 0 && !ntile.blocked()) {
+		if (ntile.entities.length === 0 && !ntile.blocked()) {
 			this.move(nx, ny)
 			return true
-		} else if (ntile.actors.length > 0) {
-			for (let i = 0; i < ntile.actors.length; i++) {
-				let actor = ntile.actors[i]
+		} else if (ntile.entities.length > 0) {
+			for (let i = 0; i < ntile.entities.length; i++) {
+				let actor = ntile.entities[i]
 				// this actor has stumbled upon another actor
 				if (actor instanceof Actor && !actor.walkable && actor.visible) {
 					if (!actor.isDead()) {
@@ -238,7 +235,7 @@ export class Actor extends Entity {
 				return
 			}
 			// if we find an enemy on the tile, we damage it and the projectile stops moving
-			let enemies = tile.actors.filter(function(e) {
+			let enemies = tile.entities.filter(function(e) {
 				return e.cb && e.cb.hostile
 			})
 			if (enemies.length > 0) {
@@ -277,7 +274,7 @@ export class Actor extends Entity {
 			if (getRandomInt(0, 1) === 0) {
 				if (this.corpseType !== undefined && this.corpseType !== null) {
 					let corpse = new Corpse(this.x, this.y, this.name, this.corpseType)
-					ctile.actors.unshift(corpse)
+					ctile.entities.unshift(corpse)
 					Game.scheduler.add(corpse, true)
 					Game.display.assignSprite(corpse, true)
 				}
@@ -420,7 +417,7 @@ export class Actor extends Entity {
 
 	pickup() {
 		let ctile = Game.map.data[this.y][this.x]
-		let items = ctile.actors.filter(el => {
+		let items = ctile.entities.filter(el => {
 			return el instanceof Item
 		})
 		if (items.length > 0) Game.eventStream.emit('LootPickedUpEvent', { items, looter: this })

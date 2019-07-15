@@ -11,7 +11,8 @@ import Ladder from 'src/assets/entities/misc/Ladder.js'
 import Chest from 'src/assets/entities/misc/Chest.js'
 import { createItem } from 'src/assets/utils/EntityFactory.js'
 import { AutoexploreGoal } from '../../utils/Goals'
-
+import Glyph from 'src/assets/display/Glyph'
+import Colors from 'src/assets/utils/Colors'
 const movementKeys = [
 	ROT.VK_RIGHT,
 	ROT.VK_LEFT,
@@ -38,7 +39,10 @@ const movementKeys = [
 export default class Player extends Actor {
 	constructor(configuration) {
 		super({
-			id: id,
+			glyph: new Glyph({
+				fg: '#eded07',
+				character: '@'
+			}),
 			name: 'you',
 			description: "It's you!",
 			visible: true,
@@ -46,6 +50,7 @@ export default class Player extends Actor {
 			casting: false,
 			examining: false,
 			walkable: false,
+			blocksVision: false,
 			leveled_up: true,
 			mouseEnabled: false,
 			canLoot: true,
@@ -139,24 +144,6 @@ export default class Player extends Actor {
 		// Give the player a few starting items:
 		// - a health potion
 		// - a random sword (equip the sword)
-		this.addToInventory(
-			createItem('SWORD', this.x, this.y, null, {
-				materialType: materialTypes.BRONZE
-			})
-		)
-
-		this.equip(this.inventory[0])
-		this.addToInventory(new Gold(this.x, this.y, 1388, 5))
-		this.addToInventory(createBow(this.x, this.y, 664))
-		this.addToInventory(new SteelArrow(this.x, this.y, 784, 7))
-		this.addToInventory(new HealthPotion(this.x, this.y, 488))
-		this.addToInventory(new ManaPotion(this.x, this.y, 608))
-		this.cb.spells.push(new MagicDart())
-		this.cb.spells.push(new MinorHeal())
-		this.cb.spells.push(new Shock())
-		this.cb.spells.push(new FireBall())
-		this.cb.spells.push(new Rage())
-		this.selectSpell(this.cb.spells[0])
 		this.mouseEnabled = false
 		this.commandQueue = []
 		this.selectedItemSlot = { item: null, index: null }
@@ -209,33 +196,27 @@ export default class Player extends Actor {
 	act() {
 		super.act()
 		this.recalculatePath()
-		this.nearbyEnemies = Game.getNearbyEnemies()
-		this.currentLevel = Game.currentLevel
 		Game.engine.lock()
 		this.cb.turnsTaken++
 		if (this.cb.turnsTaken % 5 === 0) this.heal(this.cb.hpRecovery)
 		if (this.cb.turnsTaken % 10 === 0) this.restore(this.cb.manaRecovery)
 
 		// updating our vision with the most up to date information
-		Object.assign(Game.map.seen_tiles, Game.map.visible_tiles)
-		Game.map.visible_tiles = {}
+		// let fov = new ROT.FOV.RecursiveShadowcasting((x, y) => {
+		// 	return Game.map.inbounds(x, y) && Game.map.getTile(x, y).visible()
+		// })
+		// if (Game.map.revealed) this.seenTiles = Game.map.getTiles()
 
-		// FOV calculations
-		let fov = new ROT.FOV.RecursiveShadowcasting((x, y) => {
-			return Game.map.inbounds(x, y) && Game.map.getTile(x, y).visible()
-		})
-		if (Game.map.revealed) this.seenTiles = Game.map.getTiles()
+		// let visibleTiles = getVisibleTiles(this)
+		// for (let t of visibleTiles) {
+		// 	if (!this.seenTiles.includes(t)) {
+		// 		this.seenTiles.push(t)
+		// 	}
+		// }
 
-		let visibleTiles = getVisibleTiles(this)
-		for (let t of visibleTiles) {
-			if (!this.seenTiles.includes(t)) {
-				this.seenTiles.push(t)
-			}
-		}
-
-		fov.compute(Game.player.x, Game.player.y, Game.player.cb.range, (x, y, r, visibility) => {
-			Game.map.visible_tiles[x + ',' + y] = true
-		})
+		// fov.compute(Game.player.x, Game.player.y, Game.player.cb.range, (x, y, r, visibility) => {
+		// 	Game.map.visible_tiles[x + ',' + y] = true
+		// })
 
 		if (this.commandQueue.length > 0) {
 			// perform player commands and unlock
@@ -267,7 +248,7 @@ export default class Player extends Actor {
 		window.removeEventListener('click', this.mouseHandler)
 		window.addEventListener('keyup', waitUntilPlayerReleases)
 		Game.clearTempLog()
-		Game.drawMiniMap()
+		// Game.drawMiniMap()
 		Game.engine.unlock()
 	}
 
@@ -288,18 +269,19 @@ export default class Player extends Actor {
 
 		evt.preventDefault()
 
-		if (Game.overlayData.visible) {
-			switch (Game.overlayData.component) {
-				case 'npc-dialogue':
-					return this.handleNPCDialogueEvent(evt)
-				case 'inventory-equipment-view':
-					return this.handleInventoryEvent(evt)
-				case 'spellbook':
-					return this.handleSpellbookEvent(evt)
-				default:
-					console.error('Game is showing overlay for which the player cannot handle')
-			}
-		} else if (this.interacting) {
+		// if (Game.overlayData.visible) {
+		// 	switch (Game.overlayData.component) {
+		// 		case 'npc-dialogue':
+		// 			return this.handleNPCDialogueEvent(evt)
+		// 		case 'inventory-equipment-view':
+		// 			return this.handleInventoryEvent(evt)
+		// 		case 'spellbook':
+		// 			return this.handleSpellbookEvent(evt)
+		// 		default:
+		// 			console.error('Game is showing overlay for which the player cannot handle')
+		// 	}
+		// } else
+		if (this.interacting) {
 			this.handleInteract(evt)
 		} else if (this.examining) {
 			this.handleExamineEvent(evt)
@@ -420,6 +402,7 @@ export default class Player extends Actor {
 				let diff = ROT.DIRS[8][action]
 				let ny = this.y + diff[1]
 				let nx = this.x + diff[0]
+				console.log(`Player is moving ${diff}`)
 				if (!this.tryMove(nx, ny)) {
 					return
 				}
@@ -439,7 +422,7 @@ export default class Player extends Actor {
 			Game.log('You quit examining the area.', 'information')
 			this.examining = false
 			Game.clearTempLog()
-			Game.clearSelectedTile()
+			// Game.clearSelectedTile()
 		} else if (movementKeys.includes(this.keyMap[keyCode])) {
 			let diff = ROT.DIRS[8][this.keyMap[keyCode]]
 			let x = Game.selectedTile.x + diff[0]
@@ -472,7 +455,7 @@ export default class Player extends Actor {
 				Game.log(`You fire your last ${ammo.type.toLowerCase()}!`, 'alert')
 			}
 			// find actors on this tile
-			let enemies = tile.actors.filter(e => {
+			let enemies = tile.entities.filter(e => {
 				return e.cb !== undefined && e.cb.hostile
 			})
 			if (enemies.length > 0) {
@@ -507,7 +490,7 @@ export default class Player extends Actor {
 			// if (this.y < tile.y) y = this.y - tile.y
 			// ammoSprite.rotation += Math.atan2(x, y)
 			// Game.display.moveSprite(ammoSprite, tile.x, tile.y)
-			Game.clearSelectedTile()
+			// Game.clearSelectedTile()
 			this.endTurn()
 		}
 
@@ -515,7 +498,7 @@ export default class Player extends Actor {
 			Game.log(`You put away your ${this.cb.equipment.weapon.type.toLowerCase()}.`, 'information')
 			this.casting = this.targeting = this.examining = false
 			Game.clearTempLog()
-			Game.clearSelectedTile()
+			// Game.clearSelectedTile()
 		} else if (confirmKeys.includes(keyCode)) {
 			if (this.validTarget) {
 				confirmRangedFire()
@@ -547,7 +530,7 @@ export default class Player extends Actor {
 		const confirmSpellcasting = () => {
 			let tile = Game.selectedTile
 			// find actors on this tile
-			let enemies = tile.actors.filter(e => {
+			let enemies = tile.entities.filter(e => {
 				return e.cb !== undefined && e.cb.hostile
 			})
 			if (enemies.length > 0) {
@@ -561,7 +544,7 @@ export default class Player extends Actor {
 			this.casting = false
 			this.validTarget = null
 			this.cb.spellsCast++
-			Game.clearSelectedTile()
+			// Game.clearSelectedTile()
 			this.endTurn()
 		}
 
@@ -569,7 +552,7 @@ export default class Player extends Actor {
 			Game.log('You stop casting the spell.', 'information')
 			this.casting = false
 			Game.clearTempLog()
-			Game.clearSelectedTile()
+			// Game.clearSelectedTile()
 		} else if (confirmKeys.includes(keyCode)) {
 			if (this.validTarget) {
 				confirmSpellcasting()
@@ -893,7 +876,7 @@ export default class Player extends Actor {
 
 	pickup() {
 		let ctile = Game.map.data[this.y][this.x]
-		let tileItems = ctile.actors.filter(el => {
+		let tileItems = ctile.entities.filter(el => {
 			return el instanceof Item
 		})
 		if (tileItems.length > 0) Game.eventStream.emit('LootPickedUpEvent', { items: tileItems, looter: this })
@@ -924,7 +907,7 @@ export default class Player extends Actor {
 
 	climb() {
 		let ctile = Game.map.data[this.y][this.x]
-		let ladder = ctile.actors.filter(a => {
+		let ladder = ctile.entities.filter(a => {
 			return a instanceof Ladder
 		})[0]
 
@@ -939,13 +922,13 @@ export default class Player extends Actor {
 		// returns true if the turn should end here
 		if (!Game.map.inbounds(nx, ny)) return
 		let ntile = Game.map.getTile(nx, ny) // new tile to move to
-		if (ntile.actors.length === 0 && !ntile.blocked()) {
+		if (ntile.entities.length === 0 && !ntile.blocked()) {
 			this.move(nx, ny)
-			Game.clearSelectedTile()
+			// Game.clearSelectedTile()
 			return true
-		} else if (ntile.actors.length > 0) {
-			for (let i = 0; i < ntile.actors.length; i++) {
-				let actor = ntile.actors[i]
+		} else if (ntile.entities.length > 0) {
+			for (let i = 0; i < ntile.entities.length; i++) {
+				let actor = ntile.entities[i]
 				if (actor.blocked) {
 					this.interact(actor)
 					return true
@@ -955,7 +938,7 @@ export default class Player extends Actor {
 
 		if (!ntile.blocked()) {
 			this.move(nx, ny)
-			Game.clearSelectedTile()
+			// Game.clearSelectedTile()
 			return true
 		}
 

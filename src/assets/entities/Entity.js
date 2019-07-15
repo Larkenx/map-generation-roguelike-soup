@@ -25,14 +25,14 @@ export default class Entity {
 		let ntile = Game.map.tileAt(ny, nx) // new tile to move to
 		let ctile = Game.map.tileAt(this.y, this.x) // current tile
 		ctile.removeActor(this) // remove this actor from this tile
-		ntile.actors.push(this) // add this actor to the new tile
+		ntile.entities.push(this) // add this actor to the new tile
 		this.x = nx // update x,y coords to new coords
 		this.y = ny
 	}
 
 	placeAt(nx, ny) {
 		let ntile = Game.map.tileAt(nx, ny) // new tile to move to
-		ntile.actors.push(this) // add this actor to the new tile
+		ntile.entities.push(this) // add this actor to the new tile
 		this.x = nx
 		this.y = ny
 	}

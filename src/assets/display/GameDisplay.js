@@ -125,12 +125,13 @@ export default class GameDisplay {
 	}
 
 	calculateViewport(options) {
-		let { viewPortX, viewPortY, map } = options
-		let viewPort = { width: this.width / (this.tileSize * this.scale), height: this.height / (this.tileSize * this.scale) }
+		let { x, y, map } = options
+		let { spriteWidth, spriteHeight } = this.selectedTileset
+		let viewPort = { width: this.width / (spriteWidth * this.scale), height: this.height / (spriteHeight * this.scale) }
 		let camera = {
 			// camera x,y resides in the upper left corner
-			x: viewPortX - ~~(viewPort.width / 2),
-			y: viewPortY - ~~(viewPort.height / 2),
+			x: x - ~~(viewPort.width / 2),
+			y: y - ~~(viewPort.height / 2),
 			width: Math.ceil(viewPort.width),
 			height: viewPort.height
 		}
@@ -154,39 +155,75 @@ export default class GameDisplay {
 		return startingPos
 	}
 
-	renderMap(map, options) {
+	renderMap(map, player) {
 		let { renderer, stage } = this.app
 		let { spriteWidth, spriteHeight } = this.selectedTileset
-		this.app.ticker.add(delta => this.renderOnTick(delta))
+		// this.app.ticker.add(delta => this.renderOnTick(delta))
 		stage.removeChildren()
 		this.gameView = new PIXI.Container()
-		for (let y = 0; y < map.height; y++) {
-			for (let x = 0; x < map.width; x++) {
+		let viewport = {
+			width: this.width / (spriteWidth * this.scale),
+			height: this.height / (spriteHeight * this.scale)
+		}
+
+		let camera = {
+			// camera x,y resides in the upper left corner
+			x: player.x - ~~(viewport.width / 2),
+			y: player.y - ~~(viewport.height / 2),
+			width: viewport.width,
+			height: viewport.height
+		}
+		let startingPos = [camera.x, camera.y]
+		if (camera.x < 0) {
+			startingPos[0] = 0
+		}
+		if (camera.x + camera.width >= map.width) {
+			startingPos[0] = map.width - camera.width
+		}
+		if (camera.y <= 0) {
+			startingPos[1] = 0
+		}
+		if (camera.y + camera.height >= map.height) {
+			startingPos[1] = map.height - camera.height
+		}
+		let endingPos = [startingPos[0] + camera.width, startingPos[1] + camera.height]
+		let dx = 0
+		let dy = 0
+		for (let x = startingPos[0]; x < endingPos[0]; x++) {
+			for (let y = startingPos[1]; y < endingPos[1]; y++) {
 				let tile = map.getTile(x, y)
 				for (let entity of tile.entities) {
-					if (entity.glyph) {
-						// TODO: Add support for animated glyphs
-						let { character, fg, bg } = entity.glyph
-						let sprite = new PIXI.Sprite(this.getTexture(character))
-						sprite.tint = fg
-						sprite.position.set(x * spriteWidth, y * spriteHeight)
-						this.gameView.addChild(sprite)
+					if (!Object.is(player, entity)) {
+						if (entity.glyph) {
+							// TODO: Add support for animated glyphs
+							let { character, fg, bg } = entity.glyph
+							let sprite = new PIXI.Sprite(this.getTexture(character))
+							sprite.tint = fg
+							sprite.position.set((x - startingPos[0]) * spriteWidth, (y - startingPos[1]) * spriteHeight)
+							this.gameView.addChild(sprite)
+						}
 					}
 				}
+				dy++
 			}
+			dy = 0
+			dx++
 		}
-		this.gameView.position.set(0, 0)
+		let { character, fg, bg } = player.glyph
+		let playerSprite = new PIXI.Sprite(this.getTexture(character))
+		playerSprite.tint = fg
+		playerSprite.position.set((player.x - startingPos[0]) * spriteWidth, (player.y - startingPos[1]) * spriteHeight)
+		this.gameView.addChild(playerSprite)
 		stage.addChild(this.gameView)
-		let cameraStart = this.calculateViewport({ map, ...options })
-		this.gameView.position.set(-cameraStart[0] * spriteWidth, -cameraStart[1] * spriteHeight)
-		this.app.ticker.start()
+		this.app.renderer.render(this.app.stage)
 	}
 
-	updateViewport(map, options) {
+	updateViewport(map, viewport) {
 		let { spriteWidth, spriteHeight } = this.selectedTileset
-		let cameraStart = this.calculateViewport({ map, ...options })
+		let cameraStart = this.calculateViewport({ map, ...viewport })
 		this.gameView.position.set(-cameraStart[0] * spriteWidth, -cameraStart[1] * spriteHeight)
 		this.moveSprite(this.gameView, -cameraStart[0], -cameraStart[1])
+		this.app.renderer.render(this.app.stage)
 	}
 
 	getTexture(character) {

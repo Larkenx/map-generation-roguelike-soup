@@ -21,102 +21,144 @@ export const obstacleTypes = {
 
 const obstacleDefinitions = {
 	[obstacleTypes.HILL_TREE]: {
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.',
 		glyph: new Glyph({
 			character: '↑',
 			fg: Colors.DARKER_GREEN
 		}),
-		walkable: false
+		walkable: false,
+		blocksVision: false
 	},
 	[obstacleTypes.DIRT]: {
 		glyph: new Glyph({
 			character: '.',
 			fg: Colors.BROWN
 		}),
-		walkable: true
+		walkable: true,
+		blocksVision: true,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.SHALLOW_WATER]: {
 		glyph: new Glyph({
 			character: '~',
 			fg: Colors.BLUE
 		}),
-		walkable: true
+		walkable: true,
+		blocksVision: true,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.FOREST_TREE]: {
 		glyph: new Glyph({
 			character: '↑',
 			fg: Colors.DARK_GREEN
 		}),
-		walkable: false
+		walkable: true,
+		blocksVision: false,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.GRASS]: {
 		glyph: new Glyph({
 			character: '.',
 			fg: Colors.GREEN
 		}),
-		walkable: true
+		walkable: true,
+		blocksVision: true,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.SHRUB]: {
 		glyph: new Glyph({
 			character: "'",
 			fg: Colors.BRIGHT_GREEN
 		}),
-		walkable: true
+		walkable: true,
+		blocksVision: true,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.FLOWER]: {
 		glyph: new Glyph({
 			character: ',',
 			fg: Colors.BRIGHT_GREEN
 		}),
-		walkable: true
+		walkable: true,
+		blocksVision: true,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.BUSH]: {
 		glyph: new Glyph({
 			character: '"',
 			fg: Colors.BRIGHT_GREEN
 		}),
-		walkable: true
+		walkable: true,
+		blocksVision: true,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.TALL_GRASS]: {
 		glyph: new Glyph({
 			character: String.fromCharCode(0x2320), // '?'
 			fg: Colors.BRIGHT_GREEN
 		}),
-		walkable: true
+		walkable: true,
+		blocksVision: true,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.ROCK]: {
 		glyph: new Glyph({
 			character: '.',
 			fg: Colors.WHITE
 		}),
-		walkable: true
+		walkable: true,
+		blocksVision: true,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.HILL]: {
 		glyph: new Glyph({
 			character: '^',
 			fg: Colors.BROWN
 		}),
-		walkable: false
+		walkable: false,
+		blocksVision: false,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.LOW_MOUNTAIN]: {
 		glyph: new Glyph({
 			character: String.fromCharCode(0x25b2),
 			fg: Colors.GRAY
 		}),
-		walkable: false
+		walkable: false,
+		blocksVision: false,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.HIGH_MOUNTAIN]: {
 		glyph: new Glyph({
 			character: String.fromCharCode(0x25b2),
 			fg: Colors.WHITE
 		}),
-		walkable: false
+		walkable: false,
+		blocksVision: false,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	},
 	[obstacleTypes.DEEP_WATER]: {
 		glyph: new Glyph({
 			character: '≈',
 			fg: Colors.DARK_BLUE
 		}),
-		walkable: false
+		walkable: false,
+		blocksVision: false,
+		name: 'Hill Tree',
+		description: 'A tree commonly found in hillier, more temperate climates.'
 	}
 }
 

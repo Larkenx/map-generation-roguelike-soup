@@ -16,7 +16,10 @@ html {
     </v-toolbar>
     <v-content>
       <v-container fill-height>
-        <v-layout justify-center align-content-center>
+        <v-layout
+          justify-center
+          align-content-center
+        >
           <div id="pixi_canvas" />
         </v-layout>
       </v-container>
@@ -30,7 +33,7 @@ export default {
 	name: 'App',
 	methods: {},
 	mounted() {
-		Game.initialize({ width: 1200, height: 800 })
+		Game.initialize({ width: 800, height: 600 })
 		console.log(Game)
 	}
 }

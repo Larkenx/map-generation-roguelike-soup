@@ -33,7 +33,7 @@ export class StatelessAI extends Actor {
 		Game.player.recalculatePath()
 		let visibleTiles = getVisibleTiles(this)
 		let allVisibleActors = visibleTiles.reduce((actors, tile) => {
-			return actors.concat(tile.actors)
+			return actors.concat(tile.entities)
 		}, [])
 
 		let playerInView = allVisibleActors.some(a => {
@@ -61,7 +61,7 @@ export class StatelessAI extends Actor {
 					let y = this.y + diff[1]
 					if (Game.map.inbounds(x, y)) {
 						let ctile = Game.map.getTile(x, y)
-						if (!ctile.blocked() && ctile.actors.length === 0) nearbyTiles.push(ctile)
+						if (!ctile.blocked() && ctile.entities.length === 0) nearbyTiles.push(ctile)
 					}
 				}
 				nearbyTiles.push(Game.map.getTile(this.x, this.y))
