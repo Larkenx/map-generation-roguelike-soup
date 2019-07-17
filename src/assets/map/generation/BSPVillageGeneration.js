@@ -25,6 +25,13 @@ import Glyph from 'src/assets/display/Glyph'
   7. Finally, we can construct roads through each town by simply doing a horizontal and vertical line test to see if we bump into any walls / construction we placed in step 5/6, and if not
   we can lay down a road there that to cut through the entire town
 
+  comments:
+  problem I'm sort of having right now is that flood fill usually ends up going from one end to the map :smiley:
+so the "upper left" and "lower right" coordinates of my flood fill are the entire map, and not a good grid for beginning BSP
+above shows breaking down that flood fill even more based on elevation, but again they often stretch from one end of the map to the other
+bet I can add a condition to my flood fill function here that stops if it's x tiles away from the start
+adding a max distance from the start of the flood fill is giving really promising results... (exclamation marks with different colors represent possible areas for village generation)
+
 */
 
 let bspVisualizationObstacle = (x, y, color) => {
