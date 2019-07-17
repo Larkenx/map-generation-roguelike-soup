@@ -134,7 +134,9 @@ export default class Player extends Actor {
 			[ROT.VK_X]: 'examine',
 			[ROT.VK_TAB]: 'autoexplore',
 			[ROT.VK_NUMPAD0]: 'autoexplore',
-			[ROT.VK_SPACE]: 'interact'
+			[ROT.VK_SPACE]: 'interact',
+			[107]: 'zoomin',
+			[109]: 'zoomout'
 		}
 		this.recalculatePath()
 		this.nearbyEnemies = []
@@ -398,11 +400,18 @@ export default class Player extends Actor {
 				this.interacting = true
 				Game.log(`[Interact with what?]`, 'player_move', true)
 				return
+			} else if (action === 'zoomin') {
+				Game.display.scale += 0.25
+				Game.display.rescale(Game.display.scale)
+			} else if (action === 'zoomout') {
+				if (Game.display.scale > 0.25) {
+					Game.display.scale -= 0.25
+					Game.display.rescale(Game.display.scale)
+				}
 			} else {
 				let diff = ROT.DIRS[8][action]
 				let ny = this.y + diff[1]
 				let nx = this.x + diff[0]
-				console.log(`Player is moving ${diff}`)
 				if (!this.tryMove(nx, ny)) {
 					return
 				}

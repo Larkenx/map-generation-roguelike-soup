@@ -134,7 +134,7 @@ export function unexploredTiles(actor) {
 	return allWalkableTiles.filter(t => !actor.seenTiles.includes(t))
 }
 
-export function floodFill(start) {
+export function floodFill(start, predicate) {
 	let neighbors = [start]
 	let visited = {}
 	while (neighbors.length > 0) {
@@ -143,7 +143,7 @@ export function floodFill(start) {
 		ROT.DIRS[8].forEach(([dx, dy]) => {
 			let x = v.x + dx
 			let y = v.y + dy
-			if (!outOfBoundsOrBlockedByAnything(x, y) && !visited[key(x, y)]) {
+			if (predicate(x, y) && !visited[key(x, y)]) {
 				neighbors.push({ x, y })
 			}
 		})
@@ -322,4 +322,19 @@ export const unicodeBoxTiles = [
 const flattenedUnixBoxTiles = unicodeBoxTiles.reduce((a, b) => a.concat(b))
 export function sumToTile(sum) {
 	return !(sumToTileIdMap[sum] in flattenedUnixBoxTiles) ? sum : flattenedUnixBoxTiles[sumToTileIdMap[sum]]
+}
+
+// https://stackoverflow.com/a/1484514/5051119
+export function getRandomColor() {
+	let letters = '0123456789ABCDEF'
+	let color = '#'
+	for (let i = 0; i < 6; i++) {
+		color += letters[Math.floor(Math.random() * 16)]
+	}
+	return color
+}
+
+export function distanceTo(x1, y1, x2, y2) {
+	// linear distance, no obstacles factored in
+	return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2))
 }

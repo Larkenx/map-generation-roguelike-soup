@@ -8,7 +8,7 @@ import { GameMap } from 'src/assets/map/GameMap.js'
 import { getRandomInt, getNormalRandomInt, randomProperty, between, flatten } from 'src/assets/utils/HelperFunctions.js'
 import { obstacleTypes, ObstacleFactory } from 'src/assets/entities/obstacles/Obstacles'
 
-const biomeTypes = {
+export const biomeTypes = {
 	OCEAN: 'OCEAN',
 	COASTAL: 'COASTAL',
 	GRASSLAND: 'GRASSLAND',
@@ -94,6 +94,7 @@ export const getBiome = e => {
 	} else if (e <= 0.7) {
 		return biomeTypes.SWAMP
 	} else if (e <= 4) {
+		console.log(~~e)
 		return biomeTypes.GRASSLAND
 	} else if (e <= 12) {
 		return biomeTypes.FOREST

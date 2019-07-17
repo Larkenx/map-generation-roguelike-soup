@@ -4,6 +4,7 @@ import GameDisplay from 'src/assets/display/GameDisplay'
 import Player from 'src/assets/entities/actors/Player'
 import { findStartingLocation } from 'src/assets/utils/HelperFunctions'
 import RotGameDisplay from 'src/assets/display/RotGameDisplay'
+import { createVillages } from 'src/assets/map/generation/BSPVillageGeneration'
 
 class Game {
 	constructor() {
@@ -30,7 +31,7 @@ class Game {
 	}
 
 	start() {
-		this.map = randomSimplexMap(100, 100)
+		this.map = createVillages(randomSimplexMap(120, 120))
 		let playerStartingLocation = findStartingLocation(this.map)
 		this.player = new Player({ ...playerStartingLocation })
 		this.player.placeAt(this.player.x, this.player.y)

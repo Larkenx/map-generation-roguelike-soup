@@ -29,9 +29,11 @@ export default class GameDisplay {
 			width: this.width,
 			height: this.height,
 			antialias: false,
-			transparent: true,
-			powerPreference: 'high-performance'
+			// transparent: true,
+			powerPreference: 'high-performance',
+			backgroundColor: 0x2a5250
 		})
+		this.app.backgroundColor = 0x2a5250
 		this.app.ticker.stop()
 		this.gameView = null
 		this.textureMap = {}
@@ -161,11 +163,6 @@ export default class GameDisplay {
 		// this.app.ticker.add(delta => this.renderOnTick(delta))
 		stage.removeChildren()
 		this.gameView = new PIXI.Container()
-		let background = new PIXI.Sprite(PIXI.Texture.WHITE)
-		background.width = this.width
-		background.height = this.height
-		background.tint = 0x2a5250
-		this.gameView.addChild(background)
 		let viewport = {
 			width: this.width / (spriteWidth * this.scale),
 			height: this.height / (spriteHeight * this.scale)
@@ -184,14 +181,20 @@ export default class GameDisplay {
 		}
 		if (camera.x + camera.width >= map.width) {
 			startingPos[0] = map.width - camera.width
+			if (startingPos[0] < 0) startingPos[0] = 0
 		}
 		if (camera.y <= 0) {
 			startingPos[1] = 0
 		}
 		if (camera.y + camera.height >= map.height) {
 			startingPos[1] = map.height - camera.height
+			if (startingPos[1] < 0) startingPos[1] = 0
 		}
 		let endingPos = [startingPos[0] + camera.width, startingPos[1] + camera.height]
+		if (endingPos[0] > map.width) {
+			endingPos[0] = map.width
+		}
+		if (endingPos[1] > map.height) endingPos[1] = map.height
 		let dx = 0
 		let dy = 0
 		for (let x = startingPos[0]; x < endingPos[0]; x++) {
