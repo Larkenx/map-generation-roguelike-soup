@@ -1,8 +1,8 @@
-# vampire-life-rl
+# map-generation-roguelike-soup
 
 ### About
 
-A roguelike about being a vampire! Try and survive in a city without drawing attention to yourself. If you go long enough without sating your bloodlust...the villagers will notice quickly.
+Exploring topics in map generation, focusing on simplex noise and building towns / villages. Game map representation and underlying code is borrowed from my other project, [Rotten Soup](https://github.com/Larkenx/Rotten-Soup).
 
 ## Project setup
 ```
