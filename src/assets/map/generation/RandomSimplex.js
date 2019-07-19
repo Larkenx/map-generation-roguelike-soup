@@ -94,7 +94,6 @@ export const getBiome = e => {
 	} else if (e <= 0.7) {
 		return biomeTypes.SWAMP
 	} else if (e <= 4) {
-		console.log(~~e)
 		return biomeTypes.GRASSLAND
 	} else if (e <= 12) {
 		return biomeTypes.FOREST
@@ -143,8 +142,6 @@ export function randomSimplexMap(width, height) {
 			}
 		}
 	}
-
-	console.log(gameMap)
 
 	return gameMap
 }

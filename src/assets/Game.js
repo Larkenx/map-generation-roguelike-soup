@@ -27,11 +27,10 @@ class Game {
 		this.display.loadTextures(() => {
 			this.start()
 		})
-		this.start()
 	}
 
 	start() {
-		this.map = createVillages(randomSimplexMap(120, 120))
+		this.map = createVillages(randomSimplexMap(100, 100))
 		let playerStartingLocation = findStartingLocation(this.map)
 		this.player = new Player({ ...playerStartingLocation })
 		this.player.placeAt(this.player.x, this.player.y)

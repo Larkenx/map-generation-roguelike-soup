@@ -137,9 +137,10 @@ export function unexploredTiles(actor) {
 export function floodFill(start, predicate) {
 	let neighbors = [start]
 	let visited = {}
+	let order = 0
 	while (neighbors.length > 0) {
 		let v = neighbors.pop()
-		visited[key(v.x, v.y)] = true
+		visited[key(v.x, v.y)] = order++
 		ROT.DIRS[8].forEach(([dx, dy]) => {
 			let x = v.x + dx
 			let y = v.y + dy
@@ -337,4 +338,15 @@ export function getRandomColor() {
 export function distanceTo(x1, y1, x2, y2) {
 	// linear distance, no obstacles factored in
 	return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2))
+}
+
+export function manhattanDistanceTo(x1, y1, x2, y2) {
+	let sum = 0
+	if (y2 > y1) sum += Math.abs(y2 - y1)
+	else sum += Math.abs(y1 - y2)
+
+	if (x2 > x1) sum += Math.abs(x2 - x1)
+	else sum += Math.abs(x1 - x2)
+
+	return sum
 }

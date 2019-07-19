@@ -1,5 +1,6 @@
-import { floodFill, key, getRandomColor, unkey, distanceTo } from 'src/assets/utils/HelperFunctions'
+import { floodFill, key, getRandomColor, unkey, distanceTo, manhattanDistanceTo } from 'src/assets/utils/HelperFunctions'
 import { biomeTypes } from 'src/assets/map/generation/RandomSimplex'
+import ROT from 'rot-js'
 import Entity from 'src/assets/entities/Entity'
 import Glyph from 'src/assets/display/Glyph'
 /* http://www.roguebasin.com/index.php?title=Basic_BSP_Dungeon_generation
@@ -24,7 +25,6 @@ import Glyph from 'src/assets/display/Glyph'
 
   7. Finally, we can construct roads through each town by simply doing a horizontal and vertical line test to see if we bump into any walls / construction we placed in step 5/6, and if not
   we can lay down a road there that to cut through the entire town
-
   comments:
   problem I'm sort of having right now is that flood fill usually ends up going from one end to the map :smiley:
 so the "upper left" and "lower right" coordinates of my flood fill are the entire map, and not a good grid for beginning BSP
@@ -34,13 +34,14 @@ adding a max distance from the start of the flood fill is giving really promisin
 
 */
 
-let bspVisualizationObstacle = (x, y, color) => {
+let bspVisualizationObstacle = (x, y, fg, bg = 'transparent') => {
 	return new Entity({
 		x,
 		y,
 		glyph: new Glyph({
-			character: '!',
-			fg: color
+			character: '*',
+			fg,
+			bg
 		}),
 		walkable: true,
 		blocksVision: false,
@@ -49,12 +50,28 @@ let bspVisualizationObstacle = (x, y, color) => {
 	})
 }
 
-let suitableTile = tile => {
-	let { biome, elevation } = tile.metadata
-	return biome === biomeTypes.GRASSLAND
+let startObstacle = (x, y, fg, bg = 'transparent') => {
+	return new Entity({
+		x,
+		y,
+		glyph: new Glyph({
+			character: '*',
+			fg,
+			bg
+		}),
+		walkable: true,
+		blocksVision: false,
+		name: 'Test!',
+		description: 'Test!'
+	})
 }
 
-let colorizeFloodFilledAreas = (gameMap, possibleAreas) => {
+function suitableTile(tile) {
+	let { biome, elevation } = tile.metadata
+	return biome === biomeTypes.GRASSLAND //&& elevation > 0.8
+}
+
+function colorizeFloodFilledAreas(gameMap, possibleAreas, renderNonsuitableTiles = false) {
 	// Each possible area at this point is ATLEAST minwidth x minheight, and not connected by a single tile
 	for (let grid of possibleAreas) {
 		let { upperLeft, lowerRight, width, height } = grid
@@ -65,7 +82,7 @@ let colorizeFloodFilledAreas = (gameMap, possibleAreas) => {
 			for (let x = upperLeft.x; x < width; x++) {
 				let tile = gameMap.tileAt(x, y)
 				let { biome, elevation } = tile.metadata
-				if (suitableTile(tile)) {
+				if (suitableTile(tile) || renderNonsuitableTiles) {
 					tile.entities = [bspVisualizationObstacle(x, y, a)]
 					// if (elevation >= 1 && elevation <= 2) {
 					// } else if (elevation >= 2 && elevation <= 3) {
@@ -79,21 +96,55 @@ let colorizeFloodFilledAreas = (gameMap, possibleAreas) => {
 	}
 }
 
-export function createVillages(gameMap) {
-	let minWidth = 7
-	let minHeight = 7
-	let maxDistance = 30
+function colorizeFloodFillAlgorithm(gameMap, tiles, start) {
+	let sortedTiles = tiles.sort((a, b) => b.order - a.order)
+	console.log(tiles.length)
+	let i = 0
+	let r = 0
+	let g = 0
+	let b = 255
+	for (let tile of sortedTiles) {
+		let { x, y, order } = tile
+		if (~~(i / 255) === 0) {
+			r++
+			b--
+		} else if (~~(i / 255) === 1) {
+			g++
+			r--
+		} else if (~~(i / 255) === 2) {
+			g--
+			b++
+		} else if (~~(i / 255) === 3) {
+			r++
+			b--
+		}
+		i++
+		let color = ROT.Color.toHex([r, g, b])
+			.replace('#', '0x')
+			.toString(16)
+		gameMap.tileAt(x, y).entities = [bspVisualizationObstacle(x, y, color)]
+	}
+	gameMap.tileAt(start.x, start.y).entities = [startObstacle(start.x, start.y, '#ffffff')]
+}
+
+function getPossibleVillageAreas(gameMap, options) {
+	let { minWidth, minHeight, maxDistance } = options
 	let possibleAreas = []
 	let grasslandTiles = gameMap.getTiles().filter(tile => suitableTile(tile))
 	while (grasslandTiles.length > 0) {
 		let start = grasslandTiles.pop()
 		let floodFillCondition = (x, y) => {
-			return gameMap.inbounds(x, y) && suitableTile(gameMap.tileAt(x, y)) && distanceTo(x, y, start.x, start.y) <= maxDistance
+			return (
+				gameMap.inbounds(x, y) && suitableTile(gameMap.tileAt(x, y)) && manhattanDistanceTo(x, y, start.x, start.y) <= maxDistance
+			)
 		}
 		let connectedTilesMap = floodFill(start, floodFillCondition)
-		let connectedTiles = Object.keys(connectedTilesMap).map(k => unkey(k))
-		let xCoords = connectedTiles.map(tile => tile[0])
-		let yCoords = connectedTiles.map(tile => tile[1])
+		let connectedTiles = Object.keys(connectedTilesMap).map(k => {
+			let [x, y] = unkey(k)
+			return { x, y, order: connectedTilesMap[k] }
+		})
+		let xCoords = connectedTiles.map(tile => tile.x)
+		let yCoords = connectedTiles.map(tile => tile.y)
 		let x1 = Math.min(...xCoords)
 		let y1 = Math.min(...yCoords)
 		let x2 = Math.max(...xCoords)
@@ -111,14 +162,34 @@ export function createVillages(gameMap) {
 					y: y2
 				},
 				width,
-				height
+				height,
+				area: width * height,
+				connectedTiles,
+				start
 			}
 			possibleAreas.push(details)
 		}
 		grasslandTiles = grasslandTiles.filter(tile => !(key(tile.x, tile.y) in connectedTilesMap))
 	}
+	return possibleAreas
+}
 
-	colorizeFloodFilledAreas(gameMap, possibleAreas)
+export function createVillages(gameMap) {
+	let possibleAreas = getPossibleVillageAreas(gameMap, {
+		minWidth: 7,
+		minHeight: 7,
+		maxDistance: 22
+	})
+
+	if (possibleAreas.length > 0) {
+		// colorizeFloodFilledAreas(gameMap, possibleAreas)
+		let largestArea = possibleAreas.reduce((previous, current) => {
+			return previous.area > current.area ? previous : current
+		})
+
+		// colorizeFloodFilledAreas(gameMap, [largestArea])
+		colorizeFloodFillAlgorithm(gameMap, largestArea.connectedTiles, largestArea.start)
+	}
 
 	return gameMap
 }

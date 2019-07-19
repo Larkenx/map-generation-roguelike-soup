@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js'
 PIXI.utils.skipHello()
-// PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
+PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
 
 const convertToUnicode = altCode => {
 	// prettier-ignore
@@ -23,6 +23,7 @@ export default class GameDisplay {
 	constructor(width, height) {
 		this.width = width
 		this.height = height
+		this.selectedTileset = tilesets[0]
 		this.scale = 1.0
 		this.app = new PIXI.Application({
 			// forceCanvas: true,
@@ -37,7 +38,6 @@ export default class GameDisplay {
 		this.app.ticker.stop()
 		this.gameView = null
 		this.textureMap = {}
-		this.selectedTileset = tilesets[0]
 		this.movingSprites = []
 	}
 
@@ -163,6 +163,7 @@ export default class GameDisplay {
 		// this.app.ticker.add(delta => this.renderOnTick(delta))
 		stage.removeChildren()
 		this.gameView = new PIXI.Container()
+		this.gameView.interactiveChildren = true
 		let viewport = {
 			width: this.width / (spriteWidth * this.scale),
 			height: this.height / (spriteHeight * this.scale)
@@ -172,8 +173,8 @@ export default class GameDisplay {
 			// camera x,y resides in the upper left corner
 			x: player.x - ~~(viewport.width / 2),
 			y: player.y - ~~(viewport.height / 2),
-			width: viewport.width,
-			height: viewport.height
+			width: ~~viewport.width,
+			height: ~~viewport.height
 		}
 		let startingPos = [camera.x, camera.y]
 		if (camera.x < 0) {
@@ -199,16 +200,35 @@ export default class GameDisplay {
 		let dy = 0
 		for (let x = startingPos[0]; x < endingPos[0]; x++) {
 			for (let y = startingPos[1]; y < endingPos[1]; y++) {
-				let tile = map.getTile(x, y)
-				for (let entity of tile.entities) {
-					if (!Object.is(entity, player) && (player.x !== x || player.y !== y)) {
-						if (entity.glyph) {
-							// TODO: Add support for animated glyphs
-							let { character, fg, bg } = entity.glyph
-							let sprite = new PIXI.Sprite(this.getTexture(character))
-							sprite.tint = fg
-							sprite.position.set((x - startingPos[0]) * spriteWidth, (y - startingPos[1]) * spriteHeight)
-							this.gameView.addChild(sprite)
+				if (map.inbounds(x, y)) {
+					let tile = map.getTile(x, y)
+					for (let entity of tile.entities) {
+						if (!Object.is(entity, player) && (player.x !== x || player.y !== y)) {
+							if (entity.glyph) {
+								// TODO: Add support for animated glyphs
+								let { character, fg, bg } = entity.glyph
+								let sprite = new PIXI.Sprite(this.getTexture(character))
+								sprite.interactive = true
+								sprite.tint = fg
+								sprite.position.set((x - startingPos[0]) * spriteWidth, (y - startingPos[1]) * spriteHeight)
+								sprite.on('mousedown', () => {
+									sprite.tint = 0xffffff
+									console.log({ x: tile.x, y: tile.y, ...tile.metadata })
+								})
+
+								// sprite.on('pointerout', () => {
+								// 	sprite.tint = fg
+								// 	console.log('foo')
+								// })
+
+								// sprite.hitArea = new PIXI.Rectangle(
+								// 	(x - startingPos[0]) * spriteWidth,
+								// 	(y - startingPos[1]) * spriteHeight,
+								// 	spriteWidth,
+								// 	spriteHeight
+								// )
+								stage.addChild(sprite)
+							}
 						}
 					}
 				}
@@ -221,8 +241,8 @@ export default class GameDisplay {
 		let playerSprite = new PIXI.Sprite(this.getTexture(character))
 		playerSprite.tint = fg
 		playerSprite.position.set((player.x - startingPos[0]) * spriteWidth, (player.y - startingPos[1]) * spriteHeight)
-		this.gameView.addChild(playerSprite)
-		stage.addChild(this.gameView)
+		stage.addChild(playerSprite)
+		// stage.addChild(this.gameView)
 		this.app.renderer.render(this.app.stage)
 	}
 
