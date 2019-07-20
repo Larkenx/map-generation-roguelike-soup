@@ -1,4 +1,12 @@
-import { floodFill, key, getRandomColor, unkey, distanceTo, manhattanDistanceTo } from 'src/assets/utils/HelperFunctions'
+import {
+	floodFill,
+	key,
+	getRandomColor,
+	unkey,
+	distanceTo,
+	manhattanDistanceTo,
+	chebyshevDistanceTo
+} from 'src/assets/utils/HelperFunctions'
 import { biomeTypes } from 'src/assets/map/generation/RandomSimplex'
 import ROT from 'rot-js'
 import Entity from 'src/assets/entities/Entity'
@@ -35,22 +43,6 @@ adding a max distance from the start of the flood fill is giving really promisin
 */
 
 let bspVisualizationObstacle = (x, y, fg, bg = 'transparent') => {
-	return new Entity({
-		x,
-		y,
-		glyph: new Glyph({
-			character: '*',
-			fg,
-			bg
-		}),
-		walkable: true,
-		blocksVision: false,
-		name: 'Test!',
-		description: 'Test!'
-	})
-}
-
-let startObstacle = (x, y, fg, bg = 'transparent') => {
 	return new Entity({
 		x,
 		y,
@@ -124,7 +116,7 @@ function colorizeFloodFillAlgorithm(gameMap, tiles, start) {
 			.toString(16)
 		gameMap.tileAt(x, y).entities = [bspVisualizationObstacle(x, y, color)]
 	}
-	gameMap.tileAt(start.x, start.y).entities = [startObstacle(start.x, start.y, '#ffffff')]
+	gameMap.tileAt(start.x, start.y).entities = [bspVisualizationObstacle(start.x, start.y, '#ffffff')]
 }
 
 function getPossibleVillageAreas(gameMap, options) {
@@ -133,9 +125,13 @@ function getPossibleVillageAreas(gameMap, options) {
 	let grasslandTiles = gameMap.getTiles().filter(tile => suitableTile(tile))
 	while (grasslandTiles.length > 0) {
 		let start = grasslandTiles.pop()
+		// For the flood fill, we want to limit how far we are from the origin (the max distance), because otherwise the flood fill will reach from one end of the map to the other
+		// - Manhattan produces diamond
+		// - Euclidean produces circle
+		// - Chebyshev produces square
 		let floodFillCondition = (x, y) => {
 			return (
-				gameMap.inbounds(x, y) && suitableTile(gameMap.tileAt(x, y)) && manhattanDistanceTo(x, y, start.x, start.y) <= maxDistance
+				gameMap.inbounds(x, y) && suitableTile(gameMap.tileAt(x, y)) && chebyshevDistanceTo(x, y, start.x, start.y) <= maxDistance
 			)
 		}
 		let connectedTilesMap = floodFill(start, floodFillCondition)
@@ -174,15 +170,45 @@ function getPossibleVillageAreas(gameMap, options) {
 	return possibleAreas
 }
 
+export function binarySpacePartion(gameMap, grid, options) {
+	let { minWidth, minHeight, maxDeviation } = options
+	let buildingAreas = []
+	let subGrids = [grid]
+	while (subGrids.length > 0) {
+		let partition = subGrids.pop()
+		let { upperLeft, width, height } = partition
+		let { x, y } = upperLeft
+		// Base case - our grid cannot be partitioned further without invalidating minimum partition size
+		if (width / 2 - variance <= minWidth && height / 2 - variance <= minHeight) {
+			buildingAreas.push(partition)
+		} else {
+			let direction = ROT.RNG.getUniform() > 0.5 ? 'vertical' : 'horizontal'
+			// if we can't partiton vertically further, then partition horizontally
+			if (width / 2 - variance <= minWidth) {
+				direction = 'horizontal'
+			}
+			// if we can't partiton horizontally further, then partition vertically
+			if (height / 2 - variance <= minHeight) {
+				direction = 'vertical'
+			}
+
+			let midpoint = direction === 'vertical' ? midpoint(x, x + width) : midpoint(y, y + height)
+			let deviation = ~~(ROT.RNG.getUniform() * maxDeviation)
+			if (ROT.RNG.getUniform() > 0.5) deviation = -deviation
+			let cut = midpoint + deviation
+			// Create two new sub grids from the existing partition
+		}
+	}
+}
+
 export function createVillages(gameMap) {
 	let possibleAreas = getPossibleVillageAreas(gameMap, {
 		minWidth: 7,
 		minHeight: 7,
-		maxDistance: 22
+		maxDistance: 25
 	})
 
 	if (possibleAreas.length > 0) {
-		// colorizeFloodFilledAreas(gameMap, possibleAreas)
 		let largestArea = possibleAreas.reduce((previous, current) => {
 			return previous.area > current.area ? previous : current
 		})

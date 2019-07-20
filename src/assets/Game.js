@@ -30,7 +30,7 @@ class Game {
 	}
 
 	start() {
-		this.map = createVillages(randomSimplexMap(100, 100))
+		this.map = createVillages(randomSimplexMap(100, 200))
 		let playerStartingLocation = findStartingLocation(this.map)
 		this.player = new Player({ ...playerStartingLocation })
 		this.player.placeAt(this.player.x, this.player.y)

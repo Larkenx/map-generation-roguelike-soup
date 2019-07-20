@@ -141,7 +141,7 @@ export function floodFill(start, predicate) {
 	while (neighbors.length > 0) {
 		let v = neighbors.pop()
 		visited[key(v.x, v.y)] = order++
-		ROT.DIRS[8].forEach(([dx, dy]) => {
+		shuffle([...ROT.DIRS[8]]).forEach(([dx, dy]) => {
 			let x = v.x + dx
 			let y = v.y + dy
 			if (predicate(x, y) && !visited[key(x, y)]) {
@@ -341,12 +341,24 @@ export function distanceTo(x1, y1, x2, y2) {
 }
 
 export function manhattanDistanceTo(x1, y1, x2, y2) {
-	let sum = 0
-	if (y2 > y1) sum += Math.abs(y2 - y1)
-	else sum += Math.abs(y1 - y2)
+	return Math.abs(y2 - y1) + Math.abs(x2 - x1)
+}
 
-	if (x2 > x1) sum += Math.abs(x2 - x1)
-	else sum += Math.abs(x1 - x2)
+export function chebyshevDistanceTo(x1, y1, x2, y2) {
+	return Math.max(Math.abs(y2 - y1), Math.abs(x2 - x1))
+}
 
-	return sum
+export function shuffle(a) {
+	let j, x, i
+	for (i = a.length - 1; i > 0; i--) {
+		j = Math.floor(Math.random() * (i + 1))
+		x = a[i]
+		a[i] = a[j]
+		a[j] = x
+	}
+	return a
+}
+
+export function midpoint(c1, c2) {
+	return (c1 + c2) / 2
 }
