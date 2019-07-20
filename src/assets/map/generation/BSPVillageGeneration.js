@@ -5,7 +5,8 @@ import {
 	unkey,
 	distanceTo,
 	manhattanDistanceTo,
-	chebyshevDistanceTo
+	chebyshevDistanceTo,
+	midpoint
 } from 'src/assets/utils/HelperFunctions'
 import { biomeTypes } from 'src/assets/map/generation/RandomSimplex'
 import ROT from 'rot-js'
@@ -63,19 +64,16 @@ function suitableTile(tile) {
 	return biome === biomeTypes.GRASSLAND //&& elevation > 0.8
 }
 
-function colorizeFloodFilledAreas(gameMap, possibleAreas, renderNonsuitableTiles = false) {
+function visualizeFloodFilledAreas(gameMap, possibleAreas, renderNonsuitableTiles = false) {
 	// Each possible area at this point is ATLEAST minwidth x minheight, and not connected by a single tile
 	for (let grid of possibleAreas) {
-		let { upperLeft, lowerRight, width, height } = grid
-		let a = getRandomColor()
-		let b = getRandomColor()
-		let c = getRandomColor()
-		for (let y = upperLeft.y; y < height; y++) {
-			for (let x = upperLeft.x; x < width; x++) {
+		let { upperLeft, width, height } = grid
+		for (let y = upperLeft.y; y < upperLeft.y + height; y++) {
+			for (let x = upperLeft.x; x < upperLeft.x + width; x++) {
 				let tile = gameMap.tileAt(x, y)
 				let { biome, elevation } = tile.metadata
 				if (suitableTile(tile) || renderNonsuitableTiles) {
-					tile.entities = [bspVisualizationObstacle(x, y, a)]
+					tile.entities = [bspVisualizationObstacle(x, y, '#eded07')]
 					// if (elevation >= 1 && elevation <= 2) {
 					// } else if (elevation >= 2 && elevation <= 3) {
 					// 	tile.entities = [bspVisualizationObstacle(x, y, b)]
@@ -88,7 +86,7 @@ function colorizeFloodFilledAreas(gameMap, possibleAreas, renderNonsuitableTiles
 	}
 }
 
-function colorizeFloodFillAlgorithm(gameMap, tiles, start) {
+function visualizeFloodFillAlgorithm(gameMap, tiles, start) {
 	let sortedTiles = tiles.sort((a, b) => b.order - a.order)
 	console.log(tiles.length)
 	let i = 0
@@ -117,6 +115,20 @@ function colorizeFloodFillAlgorithm(gameMap, tiles, start) {
 		gameMap.tileAt(x, y).entities = [bspVisualizationObstacle(x, y, color)]
 	}
 	gameMap.tileAt(start.x, start.y).entities = [bspVisualizationObstacle(start.x, start.y, '#ffffff')]
+}
+
+function visualizeBSP(gameMap, partitions) {
+	for (let grid of partitions) {
+		let { upperLeft, width, height } = grid
+		let gridColor = getRandomColor()
+		console.log(`Drawing from ${upperLeft.x},${upperLeft.y} to ${upperLeft.x + width}, ${upperLeft.y + height}`)
+		for (let y = upperLeft.y; y < upperLeft.y + height; y++) {
+			for (let x = upperLeft.x; x < upperLeft.x + width; x++) {
+				let tile = gameMap.tileAt(x, y)
+				tile.entities = [bspVisualizationObstacle(x, y, gridColor)]
+			}
+		}
+	}
 }
 
 function getPossibleVillageAreas(gameMap, options) {
@@ -153,10 +165,6 @@ function getPossibleVillageAreas(gameMap, options) {
 					x: x1,
 					y: y1
 				},
-				lowerRight: {
-					x: x2,
-					y: y2
-				},
 				width,
 				height,
 				area: width * height,
@@ -170,42 +178,88 @@ function getPossibleVillageAreas(gameMap, options) {
 	return possibleAreas
 }
 
-export function binarySpacePartion(gameMap, grid, options) {
+export function binarySpacePartion(initialPartition, options) {
 	let { minWidth, minHeight, maxDeviation } = options
 	let buildingAreas = []
-	let subGrids = [grid]
+	let subGrids = [initialPartition]
 	while (subGrids.length > 0) {
 		let partition = subGrids.pop()
 		let { upperLeft, width, height } = partition
 		let { x, y } = upperLeft
 		// Base case - our grid cannot be partitioned further without invalidating minimum partition size
-		if (width / 2 - variance <= minWidth && height / 2 - variance <= minHeight) {
+		if (width / 2 - maxDeviation <= minWidth && height / 2 - maxDeviation <= minHeight) {
 			buildingAreas.push(partition)
 		} else {
 			let direction = ROT.RNG.getUniform() > 0.5 ? 'vertical' : 'horizontal'
 			// if we can't partiton vertically further, then partition horizontally
-			if (width / 2 - variance <= minWidth) {
+			if (width / 2 - maxDeviation <= minWidth) {
 				direction = 'horizontal'
 			}
 			// if we can't partiton horizontally further, then partition vertically
-			if (height / 2 - variance <= minHeight) {
+			if (height / 2 - maxDeviation <= minHeight) {
 				direction = 'vertical'
 			}
 
-			let midpoint = direction === 'vertical' ? midpoint(x, x + width) : midpoint(y, y + height)
 			let deviation = ~~(ROT.RNG.getUniform() * maxDeviation)
 			if (ROT.RNG.getUniform() > 0.5) deviation = -deviation
-			let cut = midpoint + deviation
 			// Create two new sub grids from the existing partition
+			if (direction === 'vertical') {
+				let middle = ~~midpoint(x, x + width)
+				let cut = middle + deviation
+				// upperLeft remains the same, but the width becomes cut - x
+				let leftGrid = {
+					upperLeft: {
+						x: x,
+						y: y
+					},
+					width: cut - x,
+					height,
+					area: (cut - x) * height
+				}
+				let rightGrid = {
+					upperLeft: {
+						x: cut,
+						y: y
+					},
+					width: width - leftGrid.width,
+					height,
+					area: (width - leftGrid.width) * height
+				}
+				subGrids.push(leftGrid, rightGrid)
+			} else {
+				let middle = ~~midpoint(y, y + height)
+				let cut = middle + deviation
+				// upperLeft remains the same, but the width becomes cut - x
+				let topGrid = {
+					upperLeft: {
+						x: x,
+						y: y
+					},
+					width,
+					height: cut - y,
+					area: (cut - y) * width
+				}
+				let bottomGrid = {
+					upperLeft: {
+						x,
+						y: cut
+					},
+					width,
+					height: height - topGrid.height,
+					area: (height - topGrid.height) * width
+				}
+				subGrids.push(topGrid, bottomGrid)
+			}
 		}
 	}
+	return buildingAreas
 }
 
 export function createVillages(gameMap) {
 	let possibleAreas = getPossibleVillageAreas(gameMap, {
 		minWidth: 7,
 		minHeight: 7,
-		maxDistance: 25
+		maxDistance: 20
 	})
 
 	if (possibleAreas.length > 0) {
@@ -213,8 +267,15 @@ export function createVillages(gameMap) {
 			return previous.area > current.area ? previous : current
 		})
 
-		// colorizeFloodFilledAreas(gameMap, [largestArea])
-		colorizeFloodFillAlgorithm(gameMap, largestArea.connectedTiles, largestArea.start)
+		let partitions = binarySpacePartion(largestArea, {
+			minWidth: 3,
+			minHeight: 3,
+			maxDeviation: 6
+		})
+
+		visualizeBSP(gameMap, partitions)
+		// visualizeFloodFilledAreas(gameMap, [largestArea])
+		// visualizeFloodFillAlgorithm(gameMap, largestArea.connectedTiles, largestArea.start)
 	}
 
 	return gameMap
