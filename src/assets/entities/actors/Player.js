@@ -136,7 +136,9 @@ export default class Player extends Actor {
 			[ROT.VK_NUMPAD0]: 'autoexplore',
 			[ROT.VK_SPACE]: 'interact',
 			[107]: 'zoomin',
-			[109]: 'zoomout'
+			[109]: 'zoomout',
+			[ROT.VK_Q]: 'zoomin',
+			[ROT.VK_W]: 'zoomout'
 		}
 		this.recalculatePath()
 		this.nearbyEnemies = []
@@ -410,6 +412,7 @@ export default class Player extends Actor {
 				}
 			} else {
 				let diff = ROT.DIRS[8][action]
+				if (shiftPressed) diff = diff.map(n => n * 5)
 				let ny = this.y + diff[1]
 				let nx = this.x + diff[0]
 				if (!this.tryMove(nx, ny)) {

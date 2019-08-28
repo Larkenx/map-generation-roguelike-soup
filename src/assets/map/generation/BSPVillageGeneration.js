@@ -59,6 +59,38 @@ let bspVisualizationObstacle = (x, y, fg, bg = 'transparent') => {
 	})
 }
 
+let wall = (x, y, fg, bg = 'transparent') => {
+	return new Entity({
+		x,
+		y,
+		glyph: new Glyph({
+			character: '#',
+			fg,
+			bg
+		}),
+		walkable: true,
+		blocksVision: false,
+		name: 'Test!',
+		description: 'Test!'
+	})
+}
+
+let floor = (x, y, fg, bg = 'transparent') => {
+	return new Entity({
+		x,
+		y,
+		glyph: new Glyph({
+			character: '.',
+			fg,
+			bg
+		}),
+		walkable: true,
+		blocksVision: false,
+		name: 'Test!',
+		description: 'Test!'
+	})
+}
+
 function suitableTile(tile) {
 	let { biome, elevation } = tile.metadata
 	return biome === biomeTypes.GRASSLAND //&& elevation > 0.8
@@ -270,12 +302,36 @@ export function createVillages(gameMap) {
 		let partitions = binarySpacePartion(largestArea, {
 			minWidth: 3,
 			minHeight: 3,
-			maxDeviation: 6
+			maxDeviation: 3
 		})
 
-		visualizeBSP(gameMap, partitions)
+		// visualizeBSP(gameMap, partitions)
 		// visualizeFloodFilledAreas(gameMap, [largestArea])
 		// visualizeFloodFillAlgorithm(gameMap, largestArea.connectedTiles, largestArea.start)
+
+		for (let grid of partitions) {
+			let { upperLeft, width, height } = grid
+			let gridColor = getRandomColor()
+			let blockedCells = {}
+			// First, generate all the blocked cells
+			for (let y = upperLeft.y + 1; y <= upperLeft.y + height - 1; y++) {
+				for (let x = upperLeft.x + 1; x <= upperLeft.x + width - 1; x++) {
+					blockedCells[key(x, y)] =
+						y === upperLeft.y + 1 || y === upperLeft.y + height - 1 || x === upperLeft.x + 1 || x === upperLeft.x + width - 1
+				}
+			}
+			console.log(`Drawing from ${upperLeft.x},${upperLeft.y} to ${upperLeft.x + width}, ${upperLeft.y + height}`)
+			for (let y = upperLeft.y; y < upperLeft.y + height; y++) {
+				for (let x = upperLeft.x; x < upperLeft.x + width; x++) {
+					let tile = gameMap.tileAt(x, y)
+					if (blockedCells[key(x, y)]) {
+						tile.entities = [wall(x, y, gridColor)]
+					} else {
+						tile.entities = [floor(x, y, gridColor)]
+					}
+				}
+			}
+		}
 	}
 
 	return gameMap
