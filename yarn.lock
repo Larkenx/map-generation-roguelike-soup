@@ -1014,8 +1014,9 @@ acorn-walk@^6.1.1:
   resolved "https://registry.npmjs.org/acorn-walk/-/acorn-walk-6.1.1.tgz#d363b66f5fac5f018ff9c3a1e7b6f8e310cc3913"
 
 acorn@^5.0.0, acorn@^5.6.2:
-  version "5.7.3"
-  resolved "https://registry.npmjs.org/acorn/-/acorn-5.7.3.tgz#67aa231bf8812974b85235a96771eb6bd07ea279"
+  version "5.7.4"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.7.4.tgz#3e8d8a9947d0599a1796d10225d7432f4a4acf5e"
+  integrity sha512-1D++VG7BhrtvQpNbBzovKNc1FLGGEE/oGe7b9xJm/RFHMBeUaUGpluV9RLjZa47YFdPcDAenEYuq9pQPcMdLJg==
 
 acorn@^6.0.7, acorn@^6.1.1:
   version "6.1.1"
@@ -5365,10 +5366,10 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-rot-js@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/rot-js/-/rot-js-2.1.1.tgz#b027f09c4bc642a9d7eb064dc32bde2fc51d4ee7"
-  integrity sha512-CtqgIm/gM2Rfo2yi4AktYcVWD0VU2UxmJsV9F+aI0LBI6Y4jhsX/SlLEDdmVqY3YmMUw8jWKONYfPb/jOfS3rQ==
+rot-js@^0.6.5:
+  version "0.6.5"
+  resolved "https://registry.yarnpkg.com/rot-js/-/rot-js-0.6.5.tgz#5b137a2d52c3b8f09a643e5e6f05ff81019d92c8"
+  integrity sha512-PXM1oQdobPXwU06uYvxJUKcbx4J4KiOetBq5dDnQEPM9LNDqUzNd/uv2ylRE3i12KrP68Wy36rWXMGa6/14sMw==
 
 run-queue@^1.0.0, run-queue@^1.0.3:
   version "1.0.3"
