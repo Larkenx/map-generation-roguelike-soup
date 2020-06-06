@@ -5365,10 +5365,10 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-rot-js@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/rot-js/-/rot-js-2.1.1.tgz#b027f09c4bc642a9d7eb064dc32bde2fc51d4ee7"
-  integrity sha512-CtqgIm/gM2Rfo2yi4AktYcVWD0VU2UxmJsV9F+aI0LBI6Y4jhsX/SlLEDdmVqY3YmMUw8jWKONYfPb/jOfS3rQ==
+rot-js@^0.6.5:
+  version "0.6.5"
+  resolved "https://registry.yarnpkg.com/rot-js/-/rot-js-0.6.5.tgz#5b137a2d52c3b8f09a643e5e6f05ff81019d92c8"
+  integrity sha512-PXM1oQdobPXwU06uYvxJUKcbx4J4KiOetBq5dDnQEPM9LNDqUzNd/uv2ylRE3i12KrP68Wy36rWXMGa6/14sMw==
 
 run-queue@^1.0.0, run-queue@^1.0.3:
   version "1.0.3"
@@ -6482,8 +6482,9 @@ websocket-driver@>=0.5.1:
     websocket-extensions ">=0.1.1"
 
 websocket-extensions@>=0.1.1:
-  version "0.1.3"
-  resolved "https://registry.npmjs.org/websocket-extensions/-/websocket-extensions-0.1.3.tgz#5d2ff22977003ec687a4b87073dfbbac146ccf29"
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/websocket-extensions/-/websocket-extensions-0.1.4.tgz#7f8473bc839dfd87608adb95d7eb075211578a42"
+  integrity sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg==
 
 when@~3.6.x:
   version "3.6.4"
