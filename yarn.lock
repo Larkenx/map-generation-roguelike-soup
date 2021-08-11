@@ -4538,8 +4538,9 @@ path-key@^2.0.0, path-key@^2.0.1:
   resolved "https://registry.npmjs.org/path-key/-/path-key-2.0.1.tgz#411cadb574c5a140d3a4b1910d40d80cc9f40b40"
 
 path-parse@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.npmjs.org/path-parse/-/path-parse-1.0.6.tgz#d62dbb5679405d72c4737ec58600e9ddcf06d24c"
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.7.tgz#fbc114b60ca42b30d9daf5858e4bd68bbedb6735"
+  integrity sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==
 
 path-to-regexp@0.1.7:
   version "0.1.7"
@@ -5365,10 +5366,10 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-rot-js@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/rot-js/-/rot-js-2.1.1.tgz#b027f09c4bc642a9d7eb064dc32bde2fc51d4ee7"
-  integrity sha512-CtqgIm/gM2Rfo2yi4AktYcVWD0VU2UxmJsV9F+aI0LBI6Y4jhsX/SlLEDdmVqY3YmMUw8jWKONYfPb/jOfS3rQ==
+rot-js@^0.6.5:
+  version "0.6.5"
+  resolved "https://registry.yarnpkg.com/rot-js/-/rot-js-0.6.5.tgz#5b137a2d52c3b8f09a643e5e6f05ff81019d92c8"
+  integrity sha512-PXM1oQdobPXwU06uYvxJUKcbx4J4KiOetBq5dDnQEPM9LNDqUzNd/uv2ylRE3i12KrP68Wy36rWXMGa6/14sMw==
 
 run-queue@^1.0.0, run-queue@^1.0.3:
   version "1.0.3"
